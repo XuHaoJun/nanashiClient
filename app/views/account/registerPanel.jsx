@@ -1,0 +1,159 @@
+var is = require('is_js');
+var React = require('react');
+var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
+var BS = require('react-bootstrap');
+var Panel = BS.Panel;
+var Input = BS.Input;
+var Button = BS.Button;
+
+var LoginPanel = module.exports = React.createClass({
+  mixins: [PureRenderMixin],
+
+  getInitialState: function () {
+    return {
+      username: '',
+      password: '',
+      passwordConfirm: '',
+      email: '',
+    };
+  },
+
+  validationUsername: function() {
+    var length = this.state.username.length;
+    if (length >= 4) {
+      return 'success';
+    } else if (length >= 1) {
+      return 'error';
+    }
+    return '';
+  },
+
+  validationPassword: function() {
+    var length = this.state.password.length;
+    if (length >= 4) {
+      return 'success';
+    } else if (length >= 1) {
+      return 'error';
+    }
+    return '';
+  },
+
+  validationPasswordConfirm: function() {
+    var length = this.state.passwordConfirm.length;
+    if (this.validationPassword() == 'success' &&
+      this.state.passwordConfirm == this.state.password) {
+        return 'success';
+    } else if (length >= 1) {
+      return 'error';
+    }
+    return '';
+  },
+
+  validationEmail: function() {
+    var length = this.state.email.length;
+    if (length > 0 && !is.email(this.state.email)) {
+      return 'error';
+    } else if(is.email(this.state.email)) {
+      return 'success';
+    }
+    return '';
+  },
+
+  handleUsernameChange: function() {
+    this.setState({
+      username: this.refs.usernameInput.getValue()
+    });
+  },
+
+  handlePasswordChange: function() {
+    this.setState({
+      password: this.refs.passwordInput.getValue()
+    });
+  },
+
+  handlePasswordConfirmChange: function() {
+    this.setState({
+      passwordConfirm: this.refs.passwordConfirmInput.getValue()
+    });
+  },
+
+  handleEmailChange: function() {
+    this.setState({
+      email: this.refs.emailInput.getValue()
+    });
+  },
+
+  checkRegister: function() {
+    if (this.validationEmail() == 'success' &&
+      this.validationPassword() == 'success' &&
+      this.validationUsername() == 'success') {
+        return false;
+    } else {
+      return true;
+    }
+  },
+
+  handleRegisterClick: function() {
+    alert('發送 post 過去伺服器');
+  },
+
+  render: function() {
+    return (
+      <Panel header="會員註冊">
+          <Input type='text'
+                 value={this.state.username}
+                 placeholder=''
+                 label='帳號'
+                 help=''
+                 bsStyle={this.validationUsername()}
+                 hasFeedback
+                 ref='usernameInput'
+                 groupClassName='group-class'
+                 wrapperClassName='wrapper-class'
+                 labelClassName='label-class'
+                 onChange={this.handleUsernameChange} />
+          <Input type='password'
+                 value={this.state.password}
+                 placeholder=''
+                 label='密碼'
+                 help=''
+                 bsStyle={this.validationPassword()}
+                 hasFeedback
+                 ref='passwordInput'
+                 groupClassName='group-class'
+                 wrapperClassName='wrapper-class'
+                 labelClassName='label-class'
+                 onChange={this.handlePasswordChange} />
+          <Input type='password'
+                 value={this.state.passwordConfirm}
+                 placeholder=''
+                 label='密碼確認'
+                 help=''
+                 bsStyle={this.validationPasswordConfirm()}
+                 hasFeedback
+                 ref='passwordConfirmInput'
+                 groupClassName='group-class'
+                 wrapperClassName='wrapper-class'
+                 labelClassName='label-class'
+                 onChange={this.handlePasswordConfirmChange} />
+          <Input type='email'
+                 value={this.state.email}
+                 placeholder=''
+                 label='信箱'
+                 help=''
+                 bsStyle={this.validationEmail()}
+                 hasFeedback
+                 ref='emailInput'
+                 groupClassName='group-class'
+                 wrapperClassName='wrapper-class'
+                 labelClassName='label-class'
+                 onChange={this.handleEmailChange} />
+          <Button bsSize="large"
+                  bsStyle="success"
+                  onClick={this.handleRegisterClick} >
+              註冊
+          </Button>
+      </Panel>
+    );
+  }
+});
