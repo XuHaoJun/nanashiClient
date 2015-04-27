@@ -1,6 +1,7 @@
 {
-    "name": "nanashi-client",
-    "main": "assets/index.html",
+    "name": "nanashiClient",
+    "main": "dist/index.html",
+    "version": "0.0.1",
     "window": {
         "title": "Nanashi",
         "resizable": true,
