@@ -5,6 +5,8 @@ var Panel = BS.Panel;
 var Input = BS.Input;
 var Button = BS.Button;
 
+var AccountController = require('../../controllers/account');
+
 var LoginPanel = module.exports = React.createClass({
   mixins: [PureRenderMixin],
 
@@ -48,7 +50,7 @@ var LoginPanel = module.exports = React.createClass({
   },
 
   handleLoginClick: function() {
-    alert('發送 post 過去伺服器 ' + this.state.username +' '+ this.state.password);
+    AccountController.login(this.state.username, this.state.password);
   },
 
   render: function() {

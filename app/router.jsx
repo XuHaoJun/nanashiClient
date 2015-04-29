@@ -1,20 +1,30 @@
 var Router = require('director').Router;
 
-var Controllers = require('./controllers');
+var homeRoute = require('./controllers/home');
+var loginRoute = require('./controllers/account').loginRoute;
+var loginRouteBefore = require('./controllers/account').loginRouteBefore;
+var registerRoute = require('./controllers/account').registerRoute;
+var deckRoute = require('./controllers/deck').homeRoute;
+var stageRoute = require('./controllers/stage').homeRoute;
+var battleRoute = require('./controllers/battle').homeRoute;
 
 var routes = {
-  '/': Controllers.Home,
-  '/login': Controllers.Account.login,
-  '/register': Controllers.Account.register,
-  '/battle': Controllers.Battle.home
+  '/': homeRoute,
+  '/login': loginRoute,
+  '/register': registerRoute,
+  '/deck': deckRoute,
+  '/stage': stageRoute,
+  '/battle': battleRoute
 };
 
 var _router = Router(routes);
 
+console.log(_router);
+
 _router.configure({
   async: true,
   notfound: function() {
-    router.setRoute('/');
+    _router.setRoute('/');
   }
 });
 

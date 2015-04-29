@@ -1,9 +1,8 @@
 var React = require('react');
-var Views = require('../views');
-var Battle = Views.Battle.Battle;
+var Battle = require('../views/battle/battle');
 
 var BattleController = module.exports = {
-  home: function() {
+  homeRoute: function() {
     React.render(<Battle />, document.body);
   }
 };

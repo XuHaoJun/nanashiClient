@@ -6,6 +6,8 @@ var Panel = BS.Panel;
 var Input = BS.Input;
 var Button = BS.Button;
 
+var AccountController = require('../../controllers/account');
+
 var LoginPanel = module.exports = React.createClass({
   mixins: [PureRenderMixin],
 
@@ -94,7 +96,12 @@ var LoginPanel = module.exports = React.createClass({
   },
 
   handleRegisterClick: function() {
-    alert('發送 post 過去伺服器');
+    var postForm = {
+      username: this.state.username,
+      password: this.state.password,
+      email: this.state.email,
+    };
+    AccountController.register(postForm);
   },
 
   render: function() {

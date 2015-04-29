@@ -1,9 +1,11 @@
 var React = require('react');
-var Views = require('../views');
-var Home = Views.Home;
+var Home = require('../views/home');
+
+var AccountModel = require('../models/account');
 
 var HomeController = module.exports = function() {
-  console.log('home controller', this);
-
+  if (AccountModel.isEmpty()) {
+    AccountModel.loginBySession();
+  }
   React.render(<Home />, document.body);
 };

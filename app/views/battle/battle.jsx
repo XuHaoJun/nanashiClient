@@ -1,7 +1,7 @@
 var React = require('react');
 var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
 
-var LoginPanel = require('../account').LoginPanel;
+var LoginPanel = require('../account/loginPanel');
 
 var Home = module.exports = React.createClass({
   mixins: [PureRenderMixin],
