@@ -20,7 +20,17 @@ module.exports = {
       React.render(<RegisterPage />, document.body);
     } else {
       var Router = require('../router');
-      Router.setRoute('/');
+      Router.setRoute('/stage');
+    }
+  },
+
+  cardPartyRoute: function() {
+    if (AccountModel.isEmpty()) {
+      var Router = require('../router');
+      Router.setRoute('/login');
+    } else {
+      var CardPartyPage = require('../views/account/cardPartyPage');
+      React.render(<CardPartyPage />, document.body);
     }
   },
 
@@ -50,7 +60,7 @@ module.exports = {
         return;
       }
       var Router = require('../router');
-      Router.setRoute('/');
+      Router.setRoute('/stage');
     });
   }
 };

@@ -74,7 +74,7 @@ var StagePage = module.exports = React.createClass({
                   <Colm md={8}>
                       <ButtonToolbar>
                           <Button bsSize="large" href="#/deck">牌庫</Button>
-                          <Button bsSize="large">編隊</Button>
+                          <Button bsSize="large" href="#/cardParty">編隊</Button>
                           <Button bsSize="large">抽卡</Button>
                           <Button bsSize="large">玩家對戰</Button>
                       </ButtonToolbar>
