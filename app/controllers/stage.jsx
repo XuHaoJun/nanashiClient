@@ -4,10 +4,18 @@ var AccountModel = require('../models/account');
 
 module.exports = {
   homeRoute: function() {
-    if (AccountModel.isEmpty()) {
-      AccountModel.loginBySession();
-    }
     var StagePage = require('../views/stage/stagePage');
-    React.render(<StagePage />, document.body);
+    if (AccountModel.isEmpty()) {
+      AccountModel.loginBySession(function(err) {
+        if (AccountModel.isEmpty()) {
+          var Router = require('../router');
+          Router.setRoute('/login');
+        } else {
+          React.render(<StagePage />, document.body);
+        }
+      });
+    } else {
+      React.render(<StagePage />, document.body);
+    }
   }
 };

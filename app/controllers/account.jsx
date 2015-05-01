@@ -37,7 +37,7 @@ module.exports = {
   login: function(username, password) {
     AccountModel.login(username, password, function(err) {
       if (err !== null) {
-        console.log('loging err', err);
+        return;
       }
       var Router = require('../router');
       Router.setRoute('/stage');
@@ -46,6 +46,9 @@ module.exports = {
 
   register: function(postForm) {
     AccountModel.register(postForm, function(err) {
+      if (err !== null) {
+        return;
+      }
       var Router = require('../router');
       Router.setRoute('/');
     });

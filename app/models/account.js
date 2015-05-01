@@ -12,6 +12,10 @@ var SocketModel = require('./socket');
 
 var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
+  initialize: function() {
+    _account = Immutable.Map({});
+  },
+
   get: function() {
     return _account;
   },
@@ -29,11 +33,15 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       .send({username: username, password: password})
       .set('Accept', 'application/json')
       .end(function(err, res) {
-        if (is.not.null(res.body)) {
+        if (err !== null) {
+          _account = Immutable.Map({});
+        } else {
           SocketModel.connect();
+          _account = Immutable.fromJS(res.body);
         }
-        _account = Immutable.fromJS(res.body || {});
-        callback(err);
+        if (callback) {
+          callback(err);
+        }
         this.emitChange();
       }.bind(this));
   },
@@ -45,7 +53,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
         SocketModel.disconnect();
         _account = Immutable.Map({});
         if (callback) {
-          callback();
+          callback(err);
         }
         this.emitChange();
       }.bind(this));
@@ -55,12 +63,14 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
     request.post('/api/account/loginBySession')
       .set('Accept', 'application/json')
       .end(function(err, res) {
-        _account = Immutable.fromJS(res.body || {});
-        if (is.function(callback)) {
-          callback(err);
-        }
-        if (is.not.null(res.body)) {
+        if (err !== null) {
+          _account = Immutable.Map({});
+        } else {
           SocketModel.connect();
+          _account = Immutable.fromJS(res.body);
+        }
+        if (callback) {
+          callback(err);
         }
         this.emitChange();
       }.bind(this));
@@ -80,8 +90,8 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       }.bind(this));
   },
 
-  syncServer: function(accountId, callback) {
-    request.get('/api/account/'+ accountId)
+  syncServer: function(callback) {
+    request.get('/api/account/'+ _account.get('id'))
       .accpet('json')
       .end(function(err, res) {
         var account = JSON.parse(res.body);

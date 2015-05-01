@@ -9,7 +9,7 @@ module.exports = {
 
   connect: function() {
     if (_socket && _socket.disconected == false) {
-      return;
+      return false;
     }
     if (_isFirst) {
       _isFirst = false;
@@ -23,6 +23,7 @@ module.exports = {
     } else {
       _socket.connect();
     }
+    return true;
   },
 
   disconnect: function() {
