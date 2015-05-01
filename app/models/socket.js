@@ -7,6 +7,12 @@ module.exports = {
     return _socket;
   },
 
+  logout: function() {
+    if (_socket && _socket.disconected == false) {
+      _socket.emit('logout');
+    }
+  },
+
   connect: function() {
     if (_socket && _socket.disconected == false) {
       return false;
