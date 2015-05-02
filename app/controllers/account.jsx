@@ -34,6 +34,30 @@ module.exports = {
     }
   },
 
+  drawCardRoute: function() {
+    var DrawCardPage = require('../views/account/drawCardPage');
+    if (AccountModel.isEmpty()) {
+      AccountModel.loginBySession(function(err) {
+        if (AccountModel.isEmpty()) {
+          var Router = require('../router');
+          Router.setRoute('/login');
+        } else {
+          React.render(<DrawCardPage />, document.body);
+        }
+      });
+    } else {
+      React.render(<DrawCardPage />, document.body);
+    }
+  },
+
+  drawCard: function() {
+    if (AccountModel.isEmpty()) {
+      return;
+    }
+    AccountModel.drawCard(function(err, card) {
+    });
+  },
+
   logout: function() {
     if (AccountModel.isEmpty()) {
       return;

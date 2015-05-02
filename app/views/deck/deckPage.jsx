@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var is = require('is_js');
 var React = require('react');
 var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
@@ -15,9 +14,9 @@ var Navbar = BS.Navbar;
 var AccountModel = require('../../models/account');
 
 function getInitialState() {
-  console.log(AccountModel.get());
   return {
-    deck: AccountModel.getDeck() || null,
+    cardInfo: '',
+    deck: AccountModel.getDeck(),
   };
 }
 
@@ -40,31 +39,51 @@ var DeckPage = module.exports = React.createClass({
     this.setState(getInitialState());
   },
 
+  handleCardClick: function(card, event) {
+    var cardInfo = (
+      <div>
+          <p>
+              {card.get('baseCard').get('name')}
+          </p>
+          <p>
+              hp: {card.get('baseCard').get('hp')} + {card.get('hp_effort')}
+          </p>
+          <p>
+              spd: {card.get('baseCard').get('spd')} + {card.get('spd_effort')}
+          </p>
+          <p>
+              atk: {card.get('baseCard').get('atk')} + {card.get('atk_effort')}
+          </p>
+          <p>
+              def: {card.get('baseCard').get('def')} + {card.get('def_effort')}
+          </p>
+      </div>
+    );
+    this.setState({cardInfo: cardInfo});
+  },
+
   render: function() {
-    var css = {height: "100%", minHeight: "100%", maxHeight: "100%"};
-    var brand = (<a href="#/stage"><Glyphicon glyph='arrow-left' /> 返回關卡界面</a>);
-    var cards = [];
+    var cards = null;
     if (is.existy(this.state.deck) && this.state.deck.count() > 0) {
-      console.log('deck', this.state.deck);
-      console.log('deck.get(0)', this.state.deck.get(0));
-      var deck = this.state.deck.toJS();
-      cards = _.map(deck, function(v, k) {
+      cards = this.state.deck.map(function(card, k) {
+        var id = card.get('id');
         return (
-          <div>
-              <p>名稱: {v.baseCard.name}</p>
-              <p>等級: {v.lv}</p>
-              <p> hp 努力值: {v.hp_effort}</p>
-              <p> spd 努力值: {v.spd_effort}</p>
-              <p> atk 努力值: {v.atk_effort}</p>
-              <p> def 努力值: {v.def_effort}</p>
-              <p> 技能 1: {v.skill1}</p>
-              <p> 技能 2: {v.skill2}</p>
-              <p> 技能 3: {v.skill3}</p>
-              <p> 技能 4: {v.skill4}</p>
-          </div>
+          <Colm key={id}
+                md={2}
+                onClick={this.handleCardClick.bind(this, card)}
+                style={{border: '1px solid blue', height: '64px'}}>
+              {card.get('id')}
+              {card.get('baseCard').get('name')}
+          </Colm>
         );
-      });
+      }, this);
     }
+    var panelCss = {height: "100%", minHeight: "100%", maxHeight: "100%"};
+    var brand = (
+      <a href="#/stage">
+          <Glyphicon glyph='arrow-left' /> 返回關卡界面
+      </a>
+    );
     return (
       <Grid>
           <Row>
@@ -73,14 +92,15 @@ var DeckPage = module.exports = React.createClass({
           </Row>
           <Row>
               <Colm md={6}>
-                  <Panel header="牌庫" style={css}>
-                      一堆格子(卡片)
-                      {cards}
+                  <Panel header="牌庫" style={panelCss}>
+                      <Row>
+                          {cards}
+                      </Row>
                   </Panel>
               </Colm>
               <Colm md={6}>
-                  <Panel header="卡片資料" style={css}>
-                      卡片正反面
+                  <Panel header="卡片資料" style={panelCss}>
+                      {this.state.cardInfo}
                       <ButtonToolbar>
                           <Button>升級</Button>
                           <Button>傳授</Button>
