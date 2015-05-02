@@ -25,6 +25,19 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
     return _account.get('cardPartyInfo');
   },
 
+  getDeckNoCardParty: function() {
+    var cardPartys = _account.get('cardPartyInfo').get(0).get('cardParty');
+    return (
+      _account.get('deck').filterNot(function(card) {
+        return (
+          cardPartys.find(function(card2) {
+            return card.get('id') == card2.get('card').get('id');
+          }) ? true : false
+        );
+      })
+    );
+  },
+
   getDeck: function() {
     return _account.get('deck') || Immutable.fromJS([]);
   },
@@ -123,14 +136,15 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
               );
             }
           );
-          _account = _account.update('deck', function(deck) {
-            return deck.push(foundCard).sortBy(function(card) { return card.get('id'); });
-          });
+          console.log('leave foundCard', foundCard.toJS());
+          // _account = _account.update('deck', function(deck) {
+          //   return deck.push(foundCard).sortBy(function(card) { return card.get('id'); });
+          // });
+          this.emitChange();
         }
         if (callback) {
           callback(err);
         }
-        this.emitChange();
       }.bind(this));
   },
 
@@ -144,15 +158,9 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       .set('Accept', 'application/json')
       .end(function(err, res) {
         if (err === null) {
-          var foundCard;
-          var newDeck = _account.get('deck').filterNot(function(card) {
-            if (card.get('id') == cardId) {
-              foundCard = card;
-              return true;
-            }
-            return false;
+          var foundCard = _account.get('deck').find(function(card) {
+            return card.get('id') == cardId;
           });
-          _account = _account.set('deck', newDeck);
           _account = _account.updateIn(
             ['cardPartyInfo', 0, 'cardParty'],
             function(cardParty) {

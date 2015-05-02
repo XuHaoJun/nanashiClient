@@ -16,7 +16,7 @@ var AccountController = require('../../controllers/account');
 
 function getInitialState() {
   return {
-    deck: AccountModel.getDeck(),
+    deck: AccountModel.getDeckNoCardParty(),
     cardPartyInfo: AccountModel.getCardPartyInfo()
   };
 }
@@ -27,6 +27,7 @@ var CardPartyPage = module.exports = React.createClass({
   getInitialState: function() {
     var state = getInitialState();
     var firstCard = state.deck.get(0);
+    state.buttonDisabled = false;
     state.selectedCard = firstCard ? firstCard : null;
     return state;
   },
@@ -40,7 +41,9 @@ var CardPartyPage = module.exports = React.createClass({
   },
 
   _onChange: function() {
-    this.setState(getInitialState());
+    var state = getInitialState();
+    state.buttonDisabled = false;
+    this.setState(state);
   },
 
   handleSlotClick: function(slot, event) {
@@ -57,54 +60,58 @@ var CardPartyPage = module.exports = React.createClass({
 
   handleJoinParty: function(slotIndex, event) {
     var card = this.state.selectedCard;
+    this.setState({buttonDisabled: true});
     AccountController.cardPartyJoin(card.get('id'), slotIndex);
   },
 
   handleLeaveParty: function(cardParty, event) {
+    this.setState({buttonDisabled: true});
     AccountController.cardPartyLeave(cardParty.get('id'));
   },
 
   render: function() {
     var brand = (<a href="#/stage"><Glyphicon glyph='arrow-left' /> 返回關卡界面</a>);
     var cardPartys = this.state.cardPartyInfo.get(0).get('cardParty');
-    var deck = this.state.deck
-                   .filterNot(function(card) {
-                     return (
-                       cardPartys.filter(function(card2) {
-                         return card.get('id') == card2.get('card').get('id');
-                       }).count() > 0
-                     );
-                   }).map(function(card, k) {
-                     return (
-                       <Colm key={k}
-                             md={2}
-                             onClick={this.handleCardClick.bind(this, card)}
-                             style={{border: '1px solid blue', height: '64px'}}>
-                           {card.get('id')}
-                           {card.get('baseCard').get('name')}
-                       </Colm>
-                     );
-                   }, this);
+    var deck = this.state.deck.map(
+      function(card, k) {
+        var borderCss = '1px solid blue';
+        if (card.get('id') == this.state.selectedCard.get('id')) {
+          borderCss = '2px solid red';
+        }
+        return (
+          <Colm key={k}
+                md={2}
+                onClick={this.handleCardClick.bind(this, card)}
+                style={{border: borderCss, height: '64px'}}>
+              {card.get('id')}
+              {card.get('baseCard').get('name')}
+          </Colm>
+        );
+      }, this);
     var slots = [];
     [1,2,3,4,5].forEach(function(slotIndex, index) {
       var slot;
-      var card = cardPartys.filter(function(card) {
+      var cardParty = cardPartys.find(function(card) {
         return card.get('slot_index') == slotIndex;
       });
-      if (card.count() > 0) {
-        var cardParty = card.get(0);
-        card = card.get(0).get('card');
+      if (cardParty) {
+        var borderCss = '1px solid blue';
+        var card = cardParty.get('card');
+        if (card.get('id') == this.state.selectedCard.get('id')) {
+          borderCss = '2px solid red';
+        }
         slot = (
           <Colm key={index}
                 md={2}
                 onClick={this.handleSlotClick.bind(this, card)}
-                style={{border: '1px solid blue', height: '64px'}}>
+                style={{border: borderCss, height: '64px'}}>
               <div>
                   {card.get('id')}
                   {card.get('baseCard').get('name')}
               </div>
               <div>
-                  <Button onClick={this.handleLeaveParty.bind(this, cardParty)}>
+                  <Button disabled={this.state.buttonDisabled}
+                          onClick={this.handleLeaveParty.bind(this, cardParty)}>
                       取消
                   </Button>
               </div>
@@ -120,7 +127,8 @@ var CardPartyPage = module.exports = React.createClass({
                   {slotIndex}
               </div>
               <div>
-                  <Button onClick={this.handleJoinParty.bind(this, slotIndex)}>
+                  <Button disabled={this.state.buttonDisabled}
+                          onClick={this.handleJoinParty.bind(this, slotIndex)}>
                       出戰
                   </Button>
               </div>

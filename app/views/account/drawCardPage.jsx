@@ -53,7 +53,10 @@ var DrawCardPage = module.exports = React.createClass({
   mixins: [PureRenderMixin],
 
   getInitialState: function() {
-    return getInitialState();
+    var state = getInitialState();
+    state.drawButtonText = '爽抽';
+    state.disabledDrawButton = false;
+    return state;
   },
 
   componentDidMount: function() {
@@ -65,10 +68,15 @@ var DrawCardPage = module.exports = React.createClass({
   },
 
   _onChange: function() {
-    this.setState(getInitialState());
+    var state = getInitialState();
+    state.disabledDrawButton = false;
+    state.drawButtonText = '爽抽';
+    this.setState(state);
   },
 
   handleDrawCard: function() {
+    this.setState({disabledDrawButton: true,
+                   drawButtonText: '爽抽中...'});
     AccountController.drawCard();
   },
 
@@ -94,8 +102,10 @@ var DrawCardPage = module.exports = React.createClass({
               <Colm md={8}>
                   <h2>您目前金幣數量： {this.state.money} </h2>
                   <h2>花費 {1} 金幣</h2>
-                  <Button bsSize="large" onClick={this.handleDrawCard}>
-                      爽抽
+                  <Button disabled={this.state.disabledDrawButton}
+                          bsSize="large"
+                          onClick={this.handleDrawCard}>
+                      {this.state.drawButtonText}
                   </Button>
               </Colm>
           </Row>
