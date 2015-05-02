@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var React = require('react');
 var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
 var BS = require('react-bootstrap');
@@ -49,13 +48,13 @@ var ChatPanel = module.exports = React.createClass({
   },
 
   render: function() {
-    var messages = _.map(this.state.messages.toJS(), function(msg, i) {
+    var messages = this.state.messages.map(function(msg, i) {
       return (
         <div key={i}>
             { msg }
         </div>
       );
-    });
+    }, this);
     return (
       <div ref="chatMessages">
           { messages }

@@ -1,4 +1,3 @@
-var is = require('is_js');
 var React = require('react');
 var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
 var BS = require('react-bootstrap');
@@ -7,6 +6,27 @@ var Input = BS.Input;
 var Button = BS.Button;
 
 var AccountController = require('../../controllers/account');
+
+var tester = /^[-!#$%&'*+\/0-9=?A-Z^_a-z{|}~](\.?[-!#$%&'*+/0-9=?A-Z^_a-z`{|}~])*@[a-zA-Z0-9](-?[a-zA-Z0-9])*(\.[a-zA-Z](-?[a-zA-Z0-9])*)+$/;
+function isEmail(email) {
+  if(email.length>254)
+    return false;
+
+  var valid = tester.test(email);
+  if(!valid)
+    return false;
+
+  // Further checking of some things regex can't handle
+  var parts = email.split("@");
+  if(parts[0].length>64)
+    return false;
+
+  var domainParts = parts[1].split(".");
+  if(domainParts.some(function(part) { return part.length>63; }))
+    return false;
+
+  return true;
+}
 
 var LoginPanel = module.exports = React.createClass({
   mixins: [PureRenderMixin],
@@ -53,9 +73,9 @@ var LoginPanel = module.exports = React.createClass({
 
   validationEmail: function() {
     var length = this.state.email.length;
-    if (length > 0 && !is.email(this.state.email)) {
+    if (length > 0 && !isEmail(this.state.email)) {
       return 'error';
-    } else if(is.email(this.state.email)) {
+    } else if(isEmail(this.state.email)) {
       return 'success';
     }
     return '';

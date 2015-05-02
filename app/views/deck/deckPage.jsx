@@ -1,4 +1,3 @@
-var is = require('is_js');
 var React = require('react');
 var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
 var BS = require('react-bootstrap');
@@ -63,21 +62,18 @@ var DeckPage = module.exports = React.createClass({
   },
 
   render: function() {
-    var cards = null;
-    if (is.existy(this.state.deck) && this.state.deck.count() > 0) {
-      cards = this.state.deck.map(function(card, k) {
-        var id = card.get('id');
-        return (
-          <Colm key={id}
-                md={2}
-                onClick={this.handleCardClick.bind(this, card)}
-                style={{border: '1px solid blue', height: '64px'}}>
-              {card.get('id')}
-              {card.get('baseCard').get('name')}
-          </Colm>
-        );
-      }, this);
-    }
+    var cards = this.state.deck.map(function(card, k) {
+      var id = card.get('id');
+      return (
+        <Colm key={id}
+              md={2}
+              onClick={this.handleCardClick.bind(this, card)}
+              style={{border: '1px solid blue', height: '64px'}}>
+            {card.get('id')}
+            {card.get('baseCard').get('name')}
+        </Colm>
+      );
+    }, this);
     var panelCss = {height: "100%", minHeight: "100%", maxHeight: "100%"};
     var brand = (
       <a href="#/stage">

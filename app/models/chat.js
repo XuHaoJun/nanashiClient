@@ -2,7 +2,6 @@ var EventEmitter = require('events').EventEmitter;
 var Immutable = require('immutable');
 var assign = require('object-assign');
 var request = require('superagent');
-var is = require('is_js');
 
 var CHANGE_EVENT = 'change';
 

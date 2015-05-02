@@ -1,4 +1,3 @@
-var is = require('is_js');
 var React = require('react');
 
 var AccountModel = require('../models/account');
@@ -25,11 +24,17 @@ module.exports = {
   },
 
   cardPartyRoute: function() {
+    var CardPartyPage = require('../views/account/cardPartyPage');
     if (AccountModel.isEmpty()) {
-      var Router = require('../router');
-      Router.setRoute('/login');
+      AccountModel.loginBySession(function(err) {
+        if (AccountModel.isEmpty()) {
+          var Router = require('../router');
+          Router.setRoute('/login');
+        } else {
+          React.render(<CardPartyPage />, document.body);
+        }
+      });
     } else {
-      var CardPartyPage = require('../views/account/cardPartyPage');
       React.render(<CardPartyPage />, document.body);
     }
   },
@@ -48,6 +53,14 @@ module.exports = {
     } else {
       React.render(<DrawCardPage />, document.body);
     }
+  },
+
+  cardPartyJoin: function(cardId, slotIndex) {
+    AccountModel.cardPartyJoin(cardId, slotIndex);
+  },
+
+  cardPartyLeave: function(cardPartyId) {
+    AccountModel.cardPartyLeave(cardPartyId);
   },
 
   drawCard: function() {
