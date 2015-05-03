@@ -50,8 +50,8 @@ var StagePage = module.exports = React.createClass({
                       帳號: {this.state.account.get('username')}
                   </h3>
               </Colm>
-              <Colm md={2}></Colm>
-              <Colm md={1}>
+              <Colm md={1}></Colm>
+              <Colm md={2}>
                   <h3>
                       水晶: {this.state.account.get('cry')}
                   </h3>

@@ -10,6 +10,8 @@ var Colm = BS.Col;
 var Glyphicon = BS.Glyphicon;
 var Navbar = BS.Navbar;
 
+var VelocityTransitionGroup = require('../VelocityTransitionGroup');
+
 var AccountModel = require('../../models/account');
 
 var AccountController = require('../../controllers/account');
@@ -47,7 +49,7 @@ var CardPartyPage = module.exports = React.createClass({
   },
 
   handleSlotClick: function(slot, event) {
-    if (Number.isInteger(slot)) {
+    if (Number.isInteger(slot) || slot === null) {
       return;
     }
     var card = slot;
@@ -60,11 +62,16 @@ var CardPartyPage = module.exports = React.createClass({
 
   handleJoinParty: function(slotIndex, event) {
     var card = this.state.selectedCard;
-    this.setState({buttonDisabled: true});
-    AccountController.cardPartyJoin(card.get('id'), slotIndex);
+    if (card !== null) {
+      this.setState({buttonDisabled: true});
+      AccountController.cardPartyJoin(card.get('id'), slotIndex);
+    }
   },
 
   handleLeaveParty: function(cardParty, event) {
+    if (cardParty === null) {
+      return;
+    }
     this.setState({buttonDisabled: true});
     AccountController.cardPartyLeave(cardParty.get('id'));
   },
@@ -79,7 +86,7 @@ var CardPartyPage = module.exports = React.createClass({
           borderCss = '2px solid red';
         }
         return (
-          <Colm key={k}
+          <Colm key={card.get('id')}
                 md={2}
                 onClick={this.handleCardClick.bind(this, card)}
                 style={{border: borderCss, height: '64px'}}>
@@ -141,7 +148,7 @@ var CardPartyPage = module.exports = React.createClass({
     if (this.state.selectedCard) {
       var card = this.state.selectedCard;
       cardInfo = (
-        <div>
+        <div key={card.get('id')}>
             <p>
                 {card.get('baseCard').get('name')}
             </p>
@@ -161,6 +168,11 @@ var CardPartyPage = module.exports = React.createClass({
       );
     }
     var panelCss = {height: "100%", minHeight: "100%", maxHeight: "100%"};
+    var deckEnterTransition = [[
+      {opacity: [ 1, 0 ]},
+      {duration: 300,
+       easing: 'easeInCubic'}
+    ]];
     return (
       <Grid>
           <Row>
@@ -170,7 +182,9 @@ var CardPartyPage = module.exports = React.createClass({
           <Row>
               <Colm md={6}>
                   <Panel header="牌庫" style={panelCss}>
-                      {deck}
+                      <VelocityTransitionGroup enterTransition={deckEnterTransition} >
+                          {deck}
+                      </VelocityTransitionGroup>
                   </Panel>
               </Colm>
               <Colm md={6}>
@@ -178,7 +192,9 @@ var CardPartyPage = module.exports = React.createClass({
                       {slots}
                   </Panel>
                   <Panel header="卡片資料" style={panelCss}>
-                      {cardInfo}
+                      <VelocityTransitionGroup enterTransition={deckEnterTransition} >
+                          {cardInfo}
+                      </VelocityTransitionGroup>
                   </Panel>
               </Colm>
           </Row>
