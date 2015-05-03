@@ -26,6 +26,9 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
   },
 
   getDeckNoCardParty: function() {
+    if (_account.get('deck').count() == 0) {
+      return _account.get('deck');
+    }
     var cardPartys = _account.get('cardPartyInfo').get(0).get('cardParty');
     return (
       _account.get('deck').filterNot(function(card) {
@@ -103,7 +106,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       .send(form)
       .set('Accept', 'application/json')
       .end(function(err, res) {
-        _account = Immutable.Map(res.body || {});
+        _account = Immutable.fromJS(res.body || {});
         if (callback) {
           callback(err);
         }
@@ -163,13 +166,26 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
           });
           _account = _account.updateIn(
             ['cardPartyInfo', 0, 'cardParty'],
-            function(cardParty) {
-              return cardParty.push(
-                Immutable.Map({id: res.body,
-                               card_id: cardId,
-                               card: foundCard,
-                               card_party_info_id: cardPartyInfoId,
-                               slot_index: slotIndex}));
+            function(cardPartys) {
+              var foundIndex;
+              var foundCardParty = cardPartys.find(function(cardParty, index) {
+                if (cardParty.get('id') == res.body) {
+                  foundIndex = index;
+                  return true;
+                };
+                return false;
+              });
+              if (foundCardParty) {
+                return cardPartys.set(foundIndex, foundCardParty.set('slot_index', slotIndex));
+              }
+              return (
+                cardPartys.push(
+                  Immutable.Map({id: res.body,
+                                 card_id: cardId,
+                                 card: foundCard,
+                                 card_party_info_id: cardPartyInfoId,
+                                 slot_index: slotIndex}))
+              );
             });
         }
         if (callback) {
