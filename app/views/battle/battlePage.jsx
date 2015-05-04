@@ -1,9 +1,7 @@
 var React = require('react');
 var PureRenderMixin = require('react/addons').addons.PureRenderMixin;
 
-var LoginPanel = require('../account/loginPanel');
-
-var Home = module.exports = React.createClass({
+var Battle = module.exports = React.createClass({
   mixins: [PureRenderMixin],
 
   getInitialState: function() {
@@ -11,15 +9,13 @@ var Home = module.exports = React.createClass({
   },
 
   tick: function() {
-    this.setState({secondsElapsed: this.state.secondsElapsed + 1});
+    /* this.setState({secondsElapsed: this.state.secondsElapsed + 1}); */
   },
 
   componentDidMount: function() {
-    this.interval = setInterval(this.tick, 1000);
   },
 
   componentWillUnmount: function() {
-    clearInterval(this.interval);
   },
 
   render: function() {
