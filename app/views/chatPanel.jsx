@@ -56,10 +56,22 @@ var ChatPanel = module.exports = React.createClass({
       );
     }, this);
     return (
-      <div ref="chatMessages">
-          { messages }
-          <Input ref="textInput" type="text"
-                 onKeyDown={this.handleSendMessage} />
+      <div style={{position: 'relative', height: '100%', width: '100%'}}>
+          <div ref="chatMessages"
+               style={{position: 'absolute',
+                       bottom: '50px',
+                       width: '100%',
+                       height: '100%',
+                       overflow: 'auto',
+                       backgroundColor: 'rgb(237, 239, 244)',
+                       border: '1px solid rgba(29, 49, 91, .3)'
+                      }}>
+              { messages }
+          </div>
+          <div style={{position: 'absolute', bottom: '0px', width: '100%'}}>
+              <Input ref="textInput" type="text"
+                     onKeyDown={this.handleSendMessage} />
+          </div>
       </div>
     );
   }

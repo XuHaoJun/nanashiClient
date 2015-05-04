@@ -67,7 +67,15 @@ module.exports = {
     if (AccountModel.isEmpty()) {
       return;
     }
-    AccountModel.drawCard(function(err, card) {
+    AccountModel.drawCard(function(err) {
+    });
+  },
+
+  cardLevelUp: function(cardId) {
+    if (AccountModel.isEmpty()) {
+      return;
+    }
+    AccountModel.cardLevelUp(cardId, function(err) {
     });
   },
 

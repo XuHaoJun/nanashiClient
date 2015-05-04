@@ -21,10 +21,8 @@ module.exports = {
       _isFirst = false;
       var ChatModel = require('./chat');
       _socket = Socket();
-      console.log('is first', _socket);
       _socket.on('chat', function(msg) {
         ChatModel.addMessage(msg);
-        console.log('socket receive chat msg', msg);
       });
     } else {
       _socket.connect();

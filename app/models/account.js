@@ -9,6 +9,8 @@ var _account = Immutable.Map({});
 
 var _drawedCards = Immutable.fromJS([]);
 
+var _lastModifiedCard = null;
+
 var SocketModel = require('./socket');
 
 var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
@@ -25,20 +27,8 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
     return _account.get('cardPartyInfo');
   },
 
-  getDeckNoCardParty: function() {
-    if (_account.get('deck').count() == 0) {
-      return _account.get('deck');
-    }
-    var cardPartys = _account.get('cardPartyInfo').get(0).get('cardParty');
-    return (
-      _account.get('deck').filterNot(function(card) {
-        return (
-          cardPartys.find(function(card2) {
-            return card.get('id') == card2.get('card').get('id');
-          }) ? true : false
-        );
-      })
-    );
+  getLastModifiedCard: function() {
+    return _lastModifiedCard;
   },
 
   getDeck: function() {
@@ -117,6 +107,45 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       }.bind(this));
   },
 
+  cardLevelUp: function(cardId, callback) {
+    var form = {id: cardId};
+    var card = _account.get('deck').find(function(card2) {
+      return card2.get('id') == cardId;
+    });
+    request.post('/api/account/card/levelUp')
+      .send(form)
+      .set('Accept', 'application/json')
+      .end(function(err, res) {
+        if (err === null) {
+          _account = _account.update('cry', function(cry) {
+            var newCry = cry - (card.get('level') * 10 + 25);
+            return newCry;
+          });
+          _account = _account.updateIn(
+            ['deck'], function(deck) {
+              var foundIndex;
+              var card = deck.find(function(card, index) {
+                if (card.get('id') == cardId) {
+                  foundIndex = index;
+                  return true;
+                }
+                return false;
+              }, null);
+              var newCard = card.set('level', card.get('level') + 1);
+              _lastModifiedCard = newCard;
+              return (
+                deck.set(foundIndex,
+                         _lastModifiedCard)
+              );
+            });
+          this.emitChange();
+        }
+        if (callback) {
+          callback(err);
+        }
+      }.bind(this));
+  },
+
   cardPartyLeave: function(cardPartyId, callback) {
     var form = {cardPartyId: cardPartyId};
     request.post('/api/account/cardParty/leave')
@@ -139,10 +168,6 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
               );
             }
           );
-          console.log('leave foundCard', foundCard.toJS());
-          // _account = _account.update('deck', function(deck) {
-          //   return deck.push(foundCard).sortBy(function(card) { return card.get('id'); });
-          // });
           this.emitChange();
         }
         if (callback) {
@@ -233,7 +258,6 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
   },
 
   emitChange: function() {
-    window.account = _account;
     this.emit(CHANGE_EVENT);
   },
 

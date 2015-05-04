@@ -13,7 +13,6 @@ var MenuButton = require('../account/menuButton');
 var AccountModel = require('../../models/account');
 
 function getInitialState() {
-  console.log(AccountModel.get());
   return {
     account: AccountModel.get(),
   };
@@ -40,7 +39,6 @@ var StagePage = module.exports = React.createClass({
   },
 
   render: function() {
-    console.log(this.state);
     return (
       <Grid fluid>
           <Row>
@@ -65,22 +63,24 @@ var StagePage = module.exports = React.createClass({
                   <MenuButton />
               </Colm>
           </Row>
-          <nav className="navbar navbar-fixed-bottom">
-              <Row>
-                  <Colm md={3}>
-                      <ChatPanel />
-                  </Colm>
-                  <Colm md={1}></Colm>
-                  <Colm md={8}>
-                      <ButtonToolbar>
-                          <Button bsSize="large" href="#/deck">牌庫</Button>
-                          <Button bsSize="large" href="#/cardParty">編隊</Button>
-                          <Button bsSize="large" href="#/drawCard">抽卡</Button>
-                          <Button bsSize="large">玩家對戰</Button>
-                      </ButtonToolbar>
-                  </Colm>
-              </Row>
-          </nav>
+          <div style={{width: '25vw',
+                       position: 'fixed',
+                       bottom: '0px',
+                       height: '30vh',
+                      }}>
+              <ChatPanel />
+          </div>
+          <div style={{width: '25vw',
+                       position: 'fixed',
+                       left: '34vw',
+                       bottom: '5vh',
+                      }}>
+              <ButtonToolbar>
+                  <Button bsSize="large" href="#/cardParty">編隊</Button>
+                  <Button bsSize="large" href="#/drawCard">抽卡</Button>
+                  <Button bsSize="large">玩家對戰</Button>
+              </ButtonToolbar>
+          </div>
       </Grid>
     );
   }

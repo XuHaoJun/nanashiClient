@@ -19,7 +19,12 @@ var ChatModel = module.exports = assign({}, EventEmitter.prototype, {
   },
 
   addMessage: function(msg) {
-    _chat = Immutable.Map({messages: _chat.get('messages').push(msg)});
+    msg = Immutable.fromJS(msg);
+    if (typeof msg == 'string') {
+      _chat = _chat.update('messages', function(msgs) {return msgs.push(msg);});
+    } else if(Immutable.List.isList(msg)) {
+      _chat = _chat.update('messages', function(msgs) {return msgs.concat(msg);});
+    }
     this.emitChange();
   },
 
