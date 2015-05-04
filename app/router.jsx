@@ -5,7 +5,6 @@ var loginRoute = require('./controllers/account').loginRoute;
 var registerRoute = require('./controllers/account').registerRoute;
 var cardPartyRoute = require('./controllers/account').cardPartyRoute;
 var drawCardRoute = require('./controllers/account').drawCardRoute;
-var deckRoute = require('./controllers/deck').homeRoute;
 var stageRoute = require('./controllers/stage').homeRoute;
 var battleRoute = require('./controllers/battle').homeRoute;
 
@@ -15,7 +14,6 @@ var routes = {
   '/register': registerRoute,
   '/cardParty': cardPartyRoute,
   '/drawCard': drawCardRoute,
-  '/deck': deckRoute,
   '/stage': stageRoute,
   '/battle': battleRoute
 };
