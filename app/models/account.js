@@ -5,6 +5,8 @@ var request = require('superagent');
 
 var CHANGE_EVENT = 'change';
 
+var ERROR_EVENT = 'error';
+
 var _account = Immutable.Map({});
 
 var _drawedCards = Immutable.fromJS([]);
@@ -13,11 +15,9 @@ var _lastModifiedCard = null;
 
 var SocketModel = require('./socket');
 
-var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
+var _lastErrors = Immutable.Map({});
 
-  initialize: function() {
-    _account = Immutable.Map({});
-  },
+var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
   get: function() {
     return _account;
@@ -32,11 +32,19 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
   },
 
   getDeck: function() {
-    return _account.get('deck') || Immutable.fromJS([]);
+    return _account.get('deck', Immutable.fromJS([]));
   },
 
   getMoney: function() {
-    return _account.get('money') || null;
+    return _account.get('money', null);
+  },
+
+  getLastErrors: function() {
+    return _lastErrors;
+  },
+
+  getLastErrorByName: function(name) {
+    return _lastErrors.get(name, null);
   },
 
   isEmpty: function() {
@@ -107,6 +115,40 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       }.bind(this));
   },
 
+  cardEffortUpdate: function(cardId, updates, callback) {
+    var form = {id: cardId, cardEffortUpdates: updates};
+    request.post('/api/account/card/effortUpdate')
+      .send(form)
+      .set('Accept', 'application/json')
+      .end(function(err, res) {
+        if (err === null) {
+          var foundIndex;
+          var card = _account.get('deck').find(function(card2, index) {
+            if (card2.get('id') == cardId) {
+              foundIndex = index;
+              return true;
+            }
+            return false;
+          });
+          _account = _account.updateIn(['deck', foundIndex], function(card) {
+            var newCard;
+            for (var key in updates) {
+              newCard = card.set(key, card.get(key) + updates[key]);
+            }
+            _lastModifiedCard = newCard;
+            return newCard;
+          });
+          this.emitChange();
+        } else {
+          _lastErrors.set('cardEffortUpdate', res.body);
+          this.emitError();
+        }
+        if (callback) {
+          callback(err);
+        }
+      }.bind(this));
+  },
+
   cardLevelUp: function(cardId, callback) {
     var form = {id: cardId};
     var card = _account.get('deck').find(function(card2) {
@@ -117,26 +159,23 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       .set('Accept', 'application/json')
       .end(function(err, res) {
         if (err === null) {
+          var foundIndex;
+          var card = _account.get('deck').find(function(card, index) {
+            if (card.get('id') == cardId) {
+              foundIndex = index;
+              return true;
+            }
+            return false;
+          }, null);
           _account = _account.update('cry', function(cry) {
             var newCry = cry - (card.get('level') * 10 + 25);
             return newCry;
           });
           _account = _account.updateIn(
-            ['deck'], function(deck) {
-              var foundIndex;
-              var card = deck.find(function(card, index) {
-                if (card.get('id') == cardId) {
-                  foundIndex = index;
-                  return true;
-                }
-                return false;
-              }, null);
+            ['deck', foundIndex], function(card) {
               var newCard = card.set('level', card.get('level') + 1);
               _lastModifiedCard = newCard;
-              return (
-                deck.set(foundIndex,
-                         _lastModifiedCard)
-              );
+              return newCard;
             });
           this.emitChange();
         }
@@ -257,8 +296,22 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       }.bind(this));
   },
 
+
+  emitError: function() {
+    this.emit(ERROR_EVENT);
+  },
+
   emitChange: function() {
+    window.account = _account;
     this.emit(CHANGE_EVENT);
+  },
+
+  addErrorListener: function(callback) {
+    this.on(ERROR_EVENT, callback);
+  },
+
+  removeErrorListener: function(callback) {
+    this.removeListener(ERROR_EVENT, callback);
   },
 
   addChangeListener: function(callback) {

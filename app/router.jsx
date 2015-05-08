@@ -15,7 +15,7 @@ var routes = {
   '/cardParty': cardPartyRoute,
   '/drawCard': drawCardRoute,
   '/stage': stageRoute,
-  '/battle': battleRoute
+  '/battle/:targetType/:id': battleRoute
 };
 
 var _router = Router(routes);

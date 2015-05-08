@@ -63,10 +63,24 @@ var StagePage = module.exports = React.createClass({
                   <MenuButton />
               </Colm>
           </Row>
+          <Row>
+              <Colm md={12}>
+                  地圖： 貓咪實驗室
+              </Colm>
+          </Row>
+          <Row>
+              <Colm md={6}>
+              </Colm>
+              <Colm md={6}>
+              <Button href="#/battle/NPC/1">
+                  NPC-01
+              </Button>
+              </Colm>
+          </Row>
           <div style={{width: '25vw',
                        position: 'fixed',
                        bottom: '0px',
-                       height: '30vh',
+                       height: '20vh',
                       }}>
               <ChatPanel />
           </div>

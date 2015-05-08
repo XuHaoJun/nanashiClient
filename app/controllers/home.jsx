@@ -1,11 +1,17 @@
 var React = require('react');
-var Home = require('../views/home');
 
 var AccountModel = require('../models/account');
 
 var HomeController = module.exports = function() {
+  var Home = require('../views/home');
   if (AccountModel.isEmpty()) {
-    AccountModel.loginBySession();
+    AccountModel.loginBySession(function(err) {
+      if (AccountModel.isEmpty()) {
+        React.render(<Home />, document.body);
+      } else {
+        var Router = require('../router');
+        Router.setRoute('/stage');
+      }
+    });
   }
-  React.render(<Home />, document.body);
 };
