@@ -71,6 +71,14 @@ module.exports = {
     });
   },
 
+  cardEffortUpdate: function(cardId, updates) {
+    if (AccountModel.isEmpty()) {
+      return;
+    }
+    AccountModel.cardEffortUpdate(cardId, updates, function(err) {
+    });
+  },
+
   cardLevelUp: function(cardId) {
     if (AccountModel.isEmpty()) {
       return;

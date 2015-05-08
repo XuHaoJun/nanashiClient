@@ -20,8 +20,7 @@ var AccountController = require('../../controllers/account');
 function getInitialState() {
   return {
     deck: AccountModel.getDeck(),
-    cardPartyInfo: AccountModel.getCardPartyInfo(),
-    lastModifiedCard: AccountModel.getLastModifiedCard()
+    cardPartyInfo: AccountModel.getCardPartyInfo()
   };
 }
 
@@ -31,58 +30,196 @@ var _effortTypes = ['hp_effort', 'spd_effort', 'atk_effort', 'def_effort'];
 var CardInfo = React.createClass({
   mixins: [PureRenderMixin],
 
-  sumCardEffort: function() {
-    var card = this.props.card;
+  getInitialEffortUpdate: function() {
+    return {
+      hp_effort_update: 0,
+      spd_effort_update: 0,
+      atk_effort_update: 0,
+      def_effort_update: 0
+    };
+  },
+
+  getInitialState: function() {
+    var state = this.getInitialEffortUpdate();
+    state.effortUpdateButtonDisabled = true
+    return state;
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    var card = nextProps.card;
+    // TODO
+    // may be check same unusedeffort....
+    if (this.props.card.get('id') == card.get('id')) {
+      this.setState(this.getInitialEffortUpdate());
+    }
+  },
+
+  cardEffortUpdates: function() {
+    var effortUpdates = {};
+    _effortTypes.forEach(function(v, index) {
+      var effortUpdate = this.state[v + '_update'];
+      if (effortUpdate > 0) {
+        effortUpdates[v] = effortUpdate;
+      }
+    }.bind(this));
+    return effortUpdates;
+  },
+
+  sumCardEffortUpdate: function() {
+    return (
+      this.state.hp_effort_update +
+      this.state.spd_effort_update +
+      this.state.atk_effort_update +
+      this.state.def_effort_update
+    );
+  },
+
+  isUsedEffortUpdate: function() {
+    return (
+      this.state.hp_effort_update > 0 ||
+      this.state.spd_effort_update > 0 ||
+      this.state.atk_effort_update > 0 ||
+      this.state.def_effort_update > 0
+    );
+  },
+
+  sumUnusedCardEffort: function(card, noUpdateValue) {
     var sumEffort = 0;
     _effortTypes.forEach(function(t) {
-      sumEffort = card.get(t) + sumEffort;
+      sumEffort += card.get(t);
     });
     var level = card.get('level');
-    return (level - 1) - sumEffort;
+    if (noUpdateValue) {
+      return (level - 1) - sumEffort;
+    }
+    return (level - 1) - sumEffort - this.sumCardEffortUpdate();
+  },
+
+  handleMinusEffort: function(attrName, event) {
+    var effortName = attrName+'_effort';
+    var effortUpdateName = effortName + '_update';
+    var state = {};
+    state[effortUpdateName] = this.state[effortUpdateName] - 1;
+    state.effortUpdateButtonDisabled = false;
+    if (state[effortUpdateName] < 0) {
+      return;
+    }
+    this.setState(state);
+  },
+
+  handlePlusEffort: function(attrName, event) {
+    var effortName = attrName+'_effort';
+    var effortUpdateName = effortName + '_update';
+    var state = {};
+    state[effortUpdateName] = this.state[effortUpdateName] + 1;
+    state.effortUpdateButtonDisabled = false;
+    if (this.sumUnusedCardEffort(this.props.card) <= 0 ) {
+      return;
+    }
+    this.setState(state);
+  },
+
+  renderCardAttributes: function() {
+    return (
+      _attributeTypes.map(function(attrName, index) {
+        var effortName = attrName+'_effort';
+        var effortUpdateName = effortName + '_update';
+        var finalAttr = ((this.props.card.get('baseCard').get(attrName)) +
+                                            (this.props.card.get(effortName) * 3) +
+                                            (this.state[effortUpdateName] * 3));
+        return (
+          <div key={index}>
+              {attrName}: {finalAttr} | {this.state[effortUpdateName]}
+              <ButtonGroup bsSize='small' style={{marginLeft: '10px'}}>
+                  <Button onClick={this.handleMinusEffort.bind(this, attrName)}>-</Button>
+                  <Button onClick={this.handlePlusEffort.bind(this, attrName)}>+</Button>
+              </ButtonGroup>
+          </div>
+        );
+      }, this)
+    );
   },
 
   render: function() {
-    var card = this.props.card;
     return (
       <div>
           <h3>
-              {card.get('baseCard').get('name')}
+              {this.props.card.get('baseCard').get('name')}
           </h3>
           <h3>
-              level: {card.get('level') }
+              level: {this.props.card.get('level') }
           </h3>
-          <div>
-              hp: {card.get('baseCard').get('hp')} + {card.get('hp_effort')}
-              <ButtonGroup bsSize='small' style={{marginLeft: '10px'}}>
-                  <Button>-</Button>
-                  <Button>+</Button>
-              </ButtonGroup>
-          </div>
-          <div>
-              spd: {card.get('baseCard').get('spd')} + {card.get('spd_effort')}
-              <ButtonGroup bsSize='small' style={{marginLeft: '10px'}}>
-                  <Button>-</Button>
-                  <Button>+</Button>
-              </ButtonGroup>
-          </div>
-          <div>
-              atk: {card.get('baseCard').get('atk')} + {card.get('atk_effort')}
-              <ButtonGroup bsSize='small' style={{marginLeft: '10px'}}>
-                  <Button>-</Button>
-                  <Button>+</Button>
-              </ButtonGroup>
-          </div>
-          <div>
-              def: {card.get('baseCard').get('def')} + {card.get('def_effort')}
-              <ButtonGroup bsSize='small' style={{marginLeft: '10px'}}>
-                  <Button><strong>-</strong></Button>
-                  <Button>+</Button>
-              </ButtonGroup>
-          </div>
+          <Button bsSize="xsmall">重新配點</Button>
+          {this.renderCardAttributes()}
           <p>
-              尚未分配努力值： {this.sumCardEffort()}
+              尚未分配努力值： {this.sumUnusedCardEffort(this.props.card)}
           </p>
+          <ButtonToolbar>
+              <Button disabled={(this.props.card.get('level') >= 50)|| this.props.buttonDisabled}
+                      onClick={this.props.onLevelUpButtonClick}>
+                  升級
+              </Button>
+              <Button disabled={this.props.buttonDisabled}>
+                  傳授
+              </Button>
+              <Button disabled={this.props.buttonDisabled}>
+                  分解
+              </Button>
+              <Button disabled={this.state.effortUpdateButtonDisabled || this.props.buttonDisabled}
+                      onClick={this.props.onEffortUpdateButtonClick.bind(null, this.cardEffortUpdates())}
+                      >
+                  配點
+              </Button>
+          </ButtonToolbar>
       </div>
+    );
+  }
+});
+
+var Deck = React.createClass({
+  mixins: [PureRenderMixin],
+
+  sortDeck: function() {
+    var cardPartys = this.props.cardPartyInfo.get(0).get('cardParty');
+    return (
+      this.props.deck.filterNot(function(card) {
+        return (
+          cardPartys.find(function(card2) {
+            return card.get('id') == card2.get('card').get('id');
+          }) ? true : false
+        );
+      }).sortBy(function(card) {return card.get('id');})
+    );
+  },
+
+  render: function() {
+    var deck = this.sortDeck();
+    var cardPartys = this.props.cardPartyInfo.get(0).get('cardParty');
+    deck = deck.map(
+      function(card, k) {
+        var borderCss = '1px solid blue';
+        if (card.get('id') == this.props.selectedCard.get('id')) {
+          borderCss = '2px solid red';
+        }
+        return (
+          <Colm key={card.get('id')}
+                md={2}
+                onClick={this.props.onCardClick.bind(null, card)}
+                style={{border: borderCss, height: '64px'}}>
+              {card.get('id')}
+              {card.get('baseCard').get('name')}
+          </Colm>
+        );
+      }, this);
+    var deckEnterTransition = [[
+      {opacity: [ 1, 0 ]},
+      {duration: 300,
+       easing: 'easeInCubic'}
+    ]];
+    return (
+      <VelocityTransitionGroup enterTransition={deckEnterTransition} >
+          {deck}
+      </VelocityTransitionGroup>
     );
   }
 });
@@ -94,20 +231,8 @@ var CardPartyPage = module.exports = React.createClass({
     var state = getInitialState();
     state.selectedCard = null;
     state.buttonDisabled = false;
+    state.effortUpdateButtonDisabled = true;
     return state;
-  },
-
-  sortDeck: function() {
-    var cardPartys = this.state.cardPartyInfo.get(0).get('cardParty');
-    return (
-      this.state.deck.filterNot(function(card) {
-        return (
-          cardPartys.find(function(card2) {
-            return card.get('id') == card2.get('card').get('id');
-          }) ? true : false
-        );
-      }).sortBy(function(card) {return card.get('id');})
-    );
   },
 
   componentDidMount: function() {
@@ -121,15 +246,17 @@ var CardPartyPage = module.exports = React.createClass({
   _onChange: function() {
     var state = getInitialState();
     state.buttonDisabled = false;
-    if (state.lastModifiedCard && this.state.selectedCard) {
-      if (state.lastModifiedCard.get('id') == this.state.selectedCard.get('id')) {
-        state.selectedCard = state.lastModifiedCard;
+    var lastModifiedCard = AccountModel.getLastModifiedCard();
+    if (lastModifiedCard && this.state.selectedCard) {
+      if (lastModifiedCard.get('id') == this.state.selectedCard.get('id')) {
+        state.selectedCard = lastModifiedCard;
       }
     }
     this.setState(state);
   },
 
   handleSlotClick: function(slot, event) {
+    event.preventDefault();
     if (Number.isInteger(slot) || slot === null) {
       return;
     }
@@ -138,10 +265,12 @@ var CardPartyPage = module.exports = React.createClass({
   },
 
   handleCardClick: function(card, event) {
+    event.preventDefault();
     this.setState({selectedCard: card});
   },
 
   handleJoinParty: function(slotIndex, event) {
+    event.preventDefault();
     var card = this.state.selectedCard;
     if (card !== null) {
       this.setState({buttonDisabled: true});
@@ -150,6 +279,7 @@ var CardPartyPage = module.exports = React.createClass({
   },
 
   handleLeaveParty: function(cardParty, event) {
+    event.preventDefault();
     if (cardParty === null) {
       return;
     }
@@ -157,35 +287,25 @@ var CardPartyPage = module.exports = React.createClass({
     AccountController.cardPartyLeave(cardParty.get('id'));
   },
 
-  handlCardLevelUp: function(event) {
-    this.setState({buttonDisabled: true});
+  handleCardLevelUp: function(event) {
+    event.preventDefault();
     var cardId = this.state.selectedCard.get('id');
     AccountController.cardLevelUp(cardId);
+    this.setState({buttonDisabled: true});
+  },
+
+  handleCardEffortUpdate: function(updates, event) {
+    event.preventDefault();
+    var cardId = this.state.selectedCard.get('id');
+    AccountController.cardEffortUpdate(cardId, updates);
   },
 
   render: function() {
-    var brand = (<a href="#/stage"><Glyphicon glyph='arrow-left' /> 返回關卡界面</a>);
-    var deck = this.sortDeck();
     if (this.state.selectedCard === null) {
-      this.state.selectedCard = deck.get(0) ? deck.get(0) : null;
+      var minIdCard = this.state.deck.minBy(function(card) {return card.get('id');});
+      this.state.selectedCard = minIdCard ? minIdCard : null;
     }
     var cardPartys = this.state.cardPartyInfo.get(0).get('cardParty');
-    deck = deck.map(
-      function(card, k) {
-        var borderCss = '1px solid blue';
-        if (card.get('id') == this.state.selectedCard.get('id')) {
-          borderCss = '2px solid red';
-        }
-        return (
-          <Colm key={card.get('id')}
-                md={2}
-                onClick={this.handleCardClick.bind(this, card)}
-                style={{border: borderCss, height: '64px'}}>
-              {card.get('id')}
-              {card.get('baseCard').get('name')}
-          </Colm>
-        );
-      }, this);
     var slots = [];
     [1,2,3,4,5].forEach(function(slotIndex, index) {
       var slot;
@@ -235,12 +355,7 @@ var CardPartyPage = module.exports = React.createClass({
       }
       slots.push(slot);
     }.bind(this));
-    var panelCss = {height: "100%", minHeight: "100%", maxHeight: "100%"};
-    var deckEnterTransition = [[
-      {opacity: [ 1, 0 ]},
-      {duration: 300,
-       easing: 'easeInCubic'}
-    ]];
+    var brand = (<a href="#/stage"><Glyphicon glyph='arrow-left' /> 返回關卡界面</a>);
     return (
       <Grid>
           <Row>
@@ -249,37 +364,31 @@ var CardPartyPage = module.exports = React.createClass({
           </Row>
           <Row>
               <Colm md={6}>
-                  <Panel header="牌庫" style={panelCss}>
-                      <VelocityTransitionGroup enterTransition={deckEnterTransition} >
-                          {deck}
-                      </VelocityTransitionGroup>
+                  <Panel header="隊伍">
+                      {slots}
+                  </Panel>
+                  <Panel header="牌庫">
+                      <Deck cardPartyInfo={this.state.cardPartyInfo}
+                            deck={this.state.deck}
+                            onCardClick={this.handleCardClick}
+                            selectedCard={this.state.selectedCard}
+                      />
                   </Panel>
               </Colm>
               <Colm md={6}>
-                  <Panel header="隊伍" style={panelCss}>
-                      {slots}
-                  </Panel>
-                  <Panel header="卡片資料" style={panelCss}>
+                  <Panel header="卡片資料">
                       {
                         this.state.selectedCard ?
-                       <CardInfo card={this.state.selectedCard} />
+                       <CardInfo
+                       ref="cardInfo"
+                       key={this.state.selectedCard.get('id')}
+                       buttonDisabled={this.state.buttonDisabled}
+                       onLevelUpButtonClick={this.handleCardLevelUp}
+                       onEffortUpdateButtonClick={this.handleCardEffortUpdate}
+                       card={this.state.selectedCard}
+                       />
                        : null
                        }
-                       <ButtonToolbar>
-                           <Button disabled={this.state.buttonDisabled}
-                                   onClick={this.handlCardLevelUp}>
-                               升級
-                           </Button>
-                           <Button disabled={this.state.buttonDisabled}>
-                               傳授
-                           </Button>
-                           <Button disabled={this.state.buttonDisabled}>
-                               分解
-                           </Button>
-                           <Button disabled={true}>
-                               配點
-                           </Button>
-                       </ButtonToolbar>
                   </Panel>
               </Colm>
           </Row>
