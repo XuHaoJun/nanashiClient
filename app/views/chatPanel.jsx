@@ -23,6 +23,8 @@ var ChatPanel = module.exports = React.createClass({
   },
 
   componentDidMount: function() {
+    var chatMessages = this.refs.chatMessages.getDOMNode();
+    chatMessages.scrollTop = chatMessages.scrollHeight;
     ChatModel.addChangeListener(this._onChange);
   },
 
