@@ -14,3 +14,5 @@ dist/fonts/glyphicons-halflings-regular.woff
 dist/fonts/glyphicons-halflings-regular.woff2
 dist/javascripts/bundle.js
 dist/stylesheets/bundle.css
+dist/images/*
+!dist/images/.gitkeep
