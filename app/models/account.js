@@ -5,7 +5,7 @@ var request = require('superagent');
 
 var CHANGE_EVENT = 'change';
 
-var ERROR_EVENT = 'error';
+var ERROR_EVENT = '_error';
 
 var _account = Immutable.Map({});
 
@@ -58,9 +58,13 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       .end(function(err, res) {
         if (err !== null) {
           _account = Immutable.Map({});
+          if (err.message == 'Unauthorized') {
+            res.body = {error: 'wrong password or username'};
+          }
+          _lastErrors = _lastErrors.set('login', Immutable.fromJS(res.body));
+          this.emitError();
         } else {
           SocketModel.connect();
-          _account = Immutable.fromJS(res.body);
         }
         if (callback) {
           callback(err);
@@ -69,12 +73,14 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       }.bind(this));
   },
 
-  loginBySession: function(callback) {
-    request.post('/api/account/loginBySession')
+  fetch: function(callback) {
+    request.get('/api/account')
       .set('Accept', 'application/json')
       .end(function(err, res) {
         if (err !== null) {
           _account = Immutable.Map({});
+          _lastErrors = _lastErrors.set('fetch', Immutable.fromJS(res.body));
+          this.emitError();
         } else {
           SocketModel.connect();
           _account = Immutable.fromJS(res.body);
@@ -104,14 +110,13 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       .send(form)
       .set('Accept', 'application/json')
       .end(function(err, res) {
-        _account = Immutable.fromJS(res.body || {});
+        if (err) {
+          _lastErrors = _lastErrors.set('register', Immutable.fromJS(res.body));
+          this.emitError();
+        }
         if (callback) {
           callback(err);
         }
-        if (res.body !== null) {
-          SocketModel.connect();
-        }
-        this.emitChange();
       }.bind(this));
   },
 
@@ -140,7 +145,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
           });
           this.emitChange();
         } else {
-          _lastErrors.set('cardEffortUpdate', res.body);
+          _lastErrors = _lastErrors.set('cardEffortUpdate', Immutable.fromJS(res.body));
           this.emitError();
         }
         if (callback) {
@@ -178,6 +183,9 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
               return newCard;
             });
           this.emitChange();
+        } else {
+          _lastErrors = _lastErrors.set('cardLevelUp', Immutable.fromJS(res.body));
+          this.emitError();
         }
         if (callback) {
           callback(err);
@@ -208,6 +216,9 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
             }
           );
           this.emitChange();
+        } else {
+          _lastErrors = _lastErrors.set('cardPartyLeave', Immutable.fromJS(res.body));
+          this.emitError();
         }
         if (callback) {
           callback(err);
@@ -251,6 +262,9 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
                                  slot_index: slotIndex}))
               );
             });
+        } else {
+          _lastErrors = _lastErrors.set('cardPartyJoin', Immutable.fromJS(res.body));
+          this.emitError();
         }
         if (callback) {
           callback(err);
@@ -277,6 +291,9 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
           var cardPrice = 1;
           _account = _account.set('money', _account.get('money') - cardPrice);
           _drawedCards = _drawedCards.push(card);
+        } else {
+          _lastErrors = _lastErrors.set('drawCard', Immutable.fromJS(res.body));
+          this.emitError();
         }
         if (callback) {
           callback(err, card);
@@ -284,18 +301,6 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
         this.emitChange();
       }.bind(this));
   },
-
-  syncServer: function(callback) {
-    request.get('/api/account/'+ _account.get('id'))
-      .accpet('json')
-      .end(function(err, res) {
-        var account = JSON.parse(res.body);
-        _account = Immutable.Map(account);
-        callback(err, _account);
-        this.emitChange();
-      }.bind(this));
-  },
-
 
   emitError: function() {
     this.emit(ERROR_EVENT);
