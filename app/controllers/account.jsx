@@ -26,7 +26,7 @@ module.exports = {
   cardPartyRoute: function() {
     var CardPartyPage = require('../views/account/cardPartyPage');
     if (AccountModel.isEmpty()) {
-      AccountModel.loginBySession(function(err) {
+      AccountModel.fetch(function(err) {
         if (AccountModel.isEmpty()) {
           var Router = require('../router');
           Router.setRoute('/login');
@@ -42,7 +42,7 @@ module.exports = {
   drawCardRoute: function() {
     var DrawCardPage = require('../views/account/drawCardPage');
     if (AccountModel.isEmpty()) {
-      AccountModel.loginBySession(function(err) {
+      AccountModel.fetch(function(err) {
         if (AccountModel.isEmpty()) {
           var Router = require('../router');
           Router.setRoute('/login');

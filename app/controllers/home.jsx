@@ -5,7 +5,7 @@ var AccountModel = require('../models/account');
 var HomeController = module.exports = function() {
   var Home = require('../views/home');
   if (AccountModel.isEmpty()) {
-    AccountModel.loginBySession(function(err) {
+    AccountModel.fetch(function(err) {
       if (AccountModel.isEmpty()) {
         React.render(<Home />, document.body);
       } else {

@@ -6,7 +6,7 @@ module.exports = {
   homeRoute: function() {
     var StagePage = require('../views/stage/stagePage');
     if (AccountModel.isEmpty()) {
-      AccountModel.loginBySession(function(err) {
+      AccountModel.fetch(function(err) {
         if (AccountModel.isEmpty()) {
           var Router = require('../router');
           Router.setRoute('/login');
