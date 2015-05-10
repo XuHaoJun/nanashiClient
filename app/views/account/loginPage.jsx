@@ -11,15 +11,17 @@ var LoginPage = module.exports = React.createClass({
   mixins: [PureRenderMixin],
   render: function() {
     return (
-      <Grid>
+      <div>
           <MyNavbar />
-          <Row>
-              <Colm md={3} />
-              <Colm md={5}>
-                  <LoginPanel />
-              </Colm>
-          </Row>
-      </Grid>
+          <Grid fluid>
+              <Row>
+                  <Colm md={3} />
+                  <Colm md={5}>
+                      <LoginPanel />
+                  </Colm>
+              </Row>
+          </Grid>
+      </div>
     );
   }
 });

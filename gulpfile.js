@@ -3,6 +3,7 @@ var production =  ( ENV == 'pro' || ENV == 'production' ? true : false);
 var development = ( ENV == 'dev' || ENV == 'development' || !production  ? true : false);
 var argv = require('yargs').argv;
 var gulp = require('gulp');
+var merge = require('merge-stream');
 var gutil = require('gulp-util');
 var notify = require('gulp-notify');
 var plumber = require('gulp-plumber');
@@ -15,13 +16,14 @@ var watchify = require('watchify');
 var gStreamify = require('gulp-streamify');
 var minifyCSS = require('gulp-minify-css');
 var stylus = require('gulp-stylus');
+var sass = require('gulp-sass');
 var prefix = require('gulp-autoprefixer');
 var concat = require('gulp-concat');
 var source = require('vinyl-source-stream');
 
 gulp.task('default', ['watch']);
 
-gulp.task('watch', ['jsx:watch', 'js:watch', 'css:watch']);
+gulp.task('watch', ['jsx:watch', 'js:watch']);
 
 gulp.task('build', ['js-jsx:build', 'css:build']);
 
@@ -39,34 +41,38 @@ gulp.task('js:watch', function() {
 
 gulp.task('jsx:build', function() {
   return gulp.src('app/**/*.jsx')
-  .pipe(plumber({errorHandler: handleError('jsx:build')}))
-  .pipe(react())
-  .pipe(gulp.dest('app/'));
+    .pipe(plumber({errorHandler: handleError('jsx:build')}))
+    .pipe(react())
+    .pipe(gulp.dest('app/'));
 });
 
 gulp.task('jsx:watch', function() {
   gulp.watch('app/**/*.jsx', ['jsx:build']);
 });
 
-var cssFiles = [
-    'assets/stylesheets/**/*.styl',
-    'node_modules/bootstrap/dist/css/bootstrap.min.css',
-    'node_modules/toastr/toastr.min.css'
-];
+var cssFiles = {
+  stylus: ['assets/stylesheets/**/*.styl'],
+  sass: ['assets/stylesheets/**/*.scss'],
+  css: ['node_modules/bootstrap/dist/css/bootstrap.min.css',
+        'node_modules/toastr/toastr.min.css']
+};
 gulp.task('css:build', function() {
   var bundleCssDest = (argv.bundleCssDest ? argv.bundleCssDest : 'dist/stylesheets');
-  return gulp.src(cssFiles)
-  .pipe(plumber({errorHandler: handleError('css:build')}))
-  .pipe(stylus())
-  .pipe(prefix("last 3 version", { cascade: true }))
-  .pipe(minifyCSS({keepSpecialComments: 0}))
-  .pipe(concat('bundle.css', {newLine: ''}))
-  .pipe(gulp.dest(bundleCssDest));
+  var _stylus = gulp.src(cssFiles.stylus)
+        .pipe(plumber({errorHandler: handleError('css:build')}))
+        .pipe(stylus());
+  var _css = gulp.src(cssFiles.css);
+  var _sass = gulp.src(cssFiles.sass).pipe(sass().on('error', sass.logError));
+  return merge(_stylus, _css, _sass)
+    .pipe(prefix("last 3 version"))
+    .pipe(minifyCSS({keepSpecialComments: 0}))
+    .pipe(concat('bundle.css', {newLine: ''}))
+    .pipe(gulp.dest(bundleCssDest));
 });
 
-gulp.task('css:watch', function() {
-  gulp.watch(cssFiles, ['css:build']);
-});
+// gulp.task('css:watch', function() {
+//   gulp.watch(cssFiles, ['css:build']);
+// });
 
 function scripts(watch) {
   var bundler, rebundle;

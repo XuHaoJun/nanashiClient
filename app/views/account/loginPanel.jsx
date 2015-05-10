@@ -64,14 +64,25 @@ var LoginPanel = module.exports = React.createClass({
     });
   },
 
-  handlePasswordChange: function() {
+  handlePasswordChange: function(e) {
     this.setState({
       password: this.refs.passwordInput.getValue()
     });
   },
 
+  handleEnterKeyDown: function(e) {
+    var keyCode = e.keyCode || e.which;
+    if (keyCode == '13'){
+      this.handleLoginClick();
+    }
+  },
+
   handleLoginClick: function() {
-    AccountController.login(this.state.username, this.state.password);
+    if (this.validationPassword() == 'error' || this.validationPassword() == 'error') {
+      this.refs.container.warning("帳號或密碼長度不足", "登入警告");
+    } else {
+      AccountController.login(this.state.username, this.state.password);
+    }
   },
 
   scaleStart: function(event) {
@@ -101,6 +112,7 @@ var LoginPanel = module.exports = React.createClass({
                      groupClassName='group-class'
                      wrapperClassName='wrapper-class'
                      labelClassName='label-class'
+                     onKeyDown={this.handleEnterKeyDown}
                      onChange={this.handleUsernameChange} />
               <Input type='password'
                      value={this.state.password}
@@ -113,6 +125,7 @@ var LoginPanel = module.exports = React.createClass({
                      groupClassName='group-class'
                      wrapperClassName='wrapper-class'
                      labelClassName='label-class'
+                     onKeyDown={this.handleEnterKeyDown}
                      onChange={this.handlePasswordChange} />
               <Button bsSize="large"
                       block

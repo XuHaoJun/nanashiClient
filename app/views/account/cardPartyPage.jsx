@@ -125,8 +125,8 @@ var CardInfo = React.createClass({
         var effortName = attrName+'_effort';
         var effortUpdateName = effortName + '_update';
         var finalAttr = ((this.props.card.get('baseCard').get(attrName)) +
-                                            (this.props.card.get(effortName) * 3) +
-                                            (this.state[effortUpdateName] * 3));
+                                               (this.props.card.get(effortName) * 3) +
+                                               (this.state[effortUpdateName] * 3));
         return (
           <div key={index}>
               {attrName}: {finalAttr} | {this.state[effortUpdateName]}
@@ -162,7 +162,8 @@ var CardInfo = React.createClass({
               <Button disabled={this.props.buttonDisabled}>
                   傳授
               </Button>
-              <Button disabled={this.props.buttonDisabled}>
+              <Button disabled={this.props.buttonDisabled}
+                      onClick={this.props.onDecomposeButtonClick}>
                   分解
               </Button>
               <Button disabled={this.state.effortUpdateButtonDisabled || this.props.buttonDisabled}
@@ -179,10 +180,22 @@ var CardInfo = React.createClass({
 var Deck = React.createClass({
   mixins: [PureRenderMixin],
 
-  sortDeck: function() {
-    var cardPartys = this.props.cardPartyInfo.get(0).get('cardParty');
+  getInitialState: function() {
+    return {
+      deck: this.sortedDeck(this.props.deck,
+                            this.props.cardPartyInfo)
+    }
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({deck: this.sortedDeck(nextProps.deck,
+                                         nextProps.cardPartyInfo)})
+  },
+
+  sortedDeck: function(deck, cardPartyInfo) {
+    var cardPartys = cardPartyInfo.get(0).get('cardParty');
     return (
-      this.props.deck.filterNot(function(card) {
+      deck.filterNot(function(card) {
         return (
           cardPartys.find(function(card2) {
             return card.get('id') == card2.get('card').get('id');
@@ -193,8 +206,7 @@ var Deck = React.createClass({
   },
 
   render: function() {
-    var deck = this.sortDeck();
-    var cardPartys = this.props.cardPartyInfo.get(0).get('cardParty');
+    var deck = this.state.deck;
     deck = deck.map(
       function(card, k) {
         var borderCss = '1px solid blue';
@@ -252,6 +264,15 @@ var CardPartyPage = module.exports = React.createClass({
         state.selectedCard = lastModifiedCard;
       }
     }
+    var lastDeletedCardIds = AccountModel.getLastDeletedCardIds();
+    if (this.state.selectedCard) {
+      var found = lastDeletedCardIds.find(function(cardId) {
+        return cardId == this.state.selectedCard.get('id')
+      }, this);
+      if (found) {
+        state.selectedCard = null;
+      }
+    }
     this.setState(state);
   },
 
@@ -292,6 +313,12 @@ var CardPartyPage = module.exports = React.createClass({
     var cardId = this.state.selectedCard.get('id');
     AccountController.cardLevelUp(cardId);
     this.setState({buttonDisabled: true});
+  },
+
+  handleDecomposeCard: function(event) {
+    event.preventDefault();
+    var cardId = this.state.selectedCard.get('id');
+    AccountController.decomposeCard(cardId);
   },
 
   handleCardEffortUpdate: function(updates, event) {
@@ -368,7 +395,8 @@ var CardPartyPage = module.exports = React.createClass({
                       {slots}
                   </Panel>
                   <Panel header="牌庫">
-                      <Deck cardPartyInfo={this.state.cardPartyInfo}
+                      <Deck ref="deck"
+                            cardPartyInfo={this.state.cardPartyInfo}
                             deck={this.state.deck}
                             onCardClick={this.handleCardClick}
                             selectedCard={this.state.selectedCard}
@@ -385,6 +413,7 @@ var CardPartyPage = module.exports = React.createClass({
                        buttonDisabled={this.state.buttonDisabled}
                        onLevelUpButtonClick={this.handleCardLevelUp}
                        onEffortUpdateButtonClick={this.handleCardEffortUpdate}
+                       onDecomposeButtonClick={this.handleDecomposeCard}
                        card={this.state.selectedCard}
                        />
                        : null

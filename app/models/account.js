@@ -13,6 +13,8 @@ var _drawedCards = Immutable.fromJS([]);
 
 var _lastModifiedCard = null;
 
+var _lastDeletedCardIds = Immutable.fromJS([]);
+
 var SocketModel = require('./socket');
 
 var _lastErrors = Immutable.Map({});
@@ -29,6 +31,10 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
   getLastModifiedCard: function() {
     return _lastModifiedCard;
+  },
+
+  getLastDeletedCardIds: function() {
+    return _lastDeletedCardIds;
   },
 
   getDeck: function() {
@@ -112,6 +118,37 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
       .end(function(err, res) {
         if (err) {
           _lastErrors = _lastErrors.set('register', Immutable.fromJS(res.body));
+          this.emitError();
+        }
+        if (callback) {
+          callback(err);
+        }
+      }.bind(this));
+  },
+
+  decomposeCard: function(cardId, callback) {
+    var form = {id: cardId};
+    request.post('/api/account/card/decompose')
+      .send(form)
+      .set('Accept', 'application/json')
+      .end(function(err, res) {
+        if (err === null) {
+          var getCry = res.body;
+          console.log(getCry);
+          _account = _account.update('cry', function(cry) { return cry + getCry; });
+          _account = _account.update('deck', function(deck) {
+            var index = deck.findIndex(function(card) {
+              return card.get('id') == cardId;
+            });
+            if (index != -1) {
+              _lastDeletedCardIds =  _lastDeletedCardIds.push(cardId);
+              return deck.delete(index);
+            }
+            return deck;
+          });
+          this.emitChange();
+        } else {
+          _lastErrors = _lastErrors.set('decomposeCard', Immutable.fromJS(res.body));
           this.emitError();
         }
         if (callback) {

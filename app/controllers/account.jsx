@@ -71,6 +71,14 @@ module.exports = {
     });
   },
 
+  decomposeCard: function(cardId) {
+    if (AccountModel.isEmpty()) {
+      return;
+    }
+    AccountModel.decomposeCard(cardId, function(err) {
+    });
+  },
+
   cardEffortUpdate: function(cardId, updates) {
     if (AccountModel.isEmpty()) {
       return;
