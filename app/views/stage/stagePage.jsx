@@ -18,7 +18,6 @@ function getInitialState() {
   };
 }
 
-
 var StagePage = module.exports = React.createClass({
   mixins: [PureRenderMixin],
 

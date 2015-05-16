@@ -9,7 +9,7 @@ module.exports = {
       React.render(<LoginPage />, document.body);
     } else {
       var Router = require('../router');
-      Router.setRoute('/');
+      Router.setRoute('/stage');
     }
   },
 

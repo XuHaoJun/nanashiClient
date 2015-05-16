@@ -128,6 +128,7 @@ var LoginPanel = module.exports = React.createClass({
     return (
       <Panel header="會員註冊">
           <Input type='text'
+                 autoFocus
                  value={this.state.username}
                  placeholder=''
                  label='帳號'

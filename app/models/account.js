@@ -15,9 +15,9 @@ var _lastModifiedCard = null;
 
 var _lastDeletedCardIds = Immutable.fromJS([]);
 
-var SocketModel = require('./socket');
-
 var _lastErrors = Immutable.Map({});
+
+var SocketModel = require('./socket');
 
 var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
@@ -128,7 +128,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
   decomposeCard: function(cardId, callback) {
     var form = {id: cardId};
-    request.post('/api/account/card/decompose')
+    request.post('/api/account/cardDecompose')
       .send(form)
       .set('Accept', 'application/json')
       .end(function(err, res) {
@@ -159,7 +159,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
   cardEffortUpdate: function(cardId, updates, callback) {
     var form = {id: cardId, cardEffortUpdates: updates};
-    request.post('/api/account/card/effortUpdate')
+    request.post('/api/account/cardEffortUpdate')
       .send(form)
       .set('Accept', 'application/json')
       .end(function(err, res) {
@@ -196,7 +196,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
     var card = _account.get('deck').find(function(card2) {
       return card2.get('id') == cardId;
     });
-    request.post('/api/account/card/levelUp')
+    request.post('/api/account/cardLevelUp')
       .send(form)
       .set('Accept', 'application/json')
       .end(function(err, res) {
@@ -232,7 +232,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
   cardPartyLeave: function(cardPartyId, callback) {
     var form = {cardPartyId: cardPartyId};
-    request.post('/api/account/cardParty/leave')
+    request.post('/api/account/cardPartyLeave')
       .send(form)
       .set('Accept', 'application/json')
       .end(function(err, res) {
@@ -268,7 +268,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
     var form = {cardId: cardId,
                 slotIndex: slotIndex,
                 cardPartyInfoId: cardPartyInfoId};
-    request.post('/api/account/cardParty/join')
+    request.post('/api/account/cardPartyJoin')
       .send(form)
       .set('Accept', 'application/json')
       .end(function(err, res) {
@@ -344,7 +344,6 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
   },
 
   emitChange: function() {
-    window.account = _account;
     this.emit(CHANGE_EVENT);
   },
 

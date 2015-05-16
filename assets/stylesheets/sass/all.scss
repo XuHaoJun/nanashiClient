@@ -1,1 +1,16 @@
-@import "../../../node_modules/material-ui-sass/material-ui.scss";
+/* @import "../../../node_modules/material-ui-sass/material-ui.scss"; */
+
+.battleTargetCard {
+    &:hover {
+        border: 2px solid red;
+        cursor: pointer;
+    }
+}
+
+.battleCard {
+    height: 64px;
+}
+
+.battleUseSkillCard {
+    border: 1px solid blue;
+}

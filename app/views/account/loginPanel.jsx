@@ -35,6 +35,7 @@ var LoginPanel = module.exports = React.createClass({
     return {
       username: '',
       password: '',
+      logining: false
     };
   },
 
@@ -81,6 +82,7 @@ var LoginPanel = module.exports = React.createClass({
     if (this.validationPassword() == 'error' || this.validationPassword() == 'error') {
       this.refs.container.warning("帳號或密碼長度不足", "登入警告");
     } else {
+      this.setState({logining: true});
       AccountController.login(this.state.username, this.state.password);
     }
   },
@@ -102,6 +104,7 @@ var LoginPanel = module.exports = React.createClass({
           <ToastContainer toastMessageFactory={ToastMessageFactory} ref="container" className="toast-top-right" />
           <Panel header="會員登入">
               <Input type='text'
+                     autoFocus
                      value={this.state.username}
                      placeholder=''
                      label='帳號'
@@ -129,8 +132,9 @@ var LoginPanel = module.exports = React.createClass({
                      onChange={this.handlePasswordChange} />
               <Button bsSize="large"
                       block
+                      disabled={this.state.logining}
                       onClick={this.handleLoginClick} >
-                  登入
+                  {this.state.logining ? '登入中....' : '登入'}
               </Button>
               <div style={{marginTop: '24px'}}>
                   <a href="/auth/facebook">
