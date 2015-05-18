@@ -14,7 +14,7 @@ var Home = module.exports = React.createClass({
 
   render: function() {
     return (
-      <div>
+      <div style={{paddingTop: '70px'}}>
           <MyNavbar>
           </MyNavbar>
           <Grid>

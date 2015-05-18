@@ -28,6 +28,7 @@ var LoginPanel = module.exports = React.createClass({
     var loginError = AccountModel.getLastErrorByName('login');
     if (loginError) {
       this.refs.container.error("帳號或密碼錯誤", "登入失敗");
+      this.setState({logining: false});
     }
   },
 

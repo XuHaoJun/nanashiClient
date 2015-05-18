@@ -16,6 +16,10 @@ var _battlePC2NPC1v1 = null;
 
 var _battlePC2NPC1v1EffectsQueue = Immutable.fromJS([]);
 
+var _complete = Immutable.fromJS({
+  battlePC2NPC1v1: null
+});
+
 var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
 
   getBattlePC2NPC1v1: function() {
@@ -46,6 +50,13 @@ var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
     console.log('handleEffectsQueue', payload);
     _battlePC2NPC1v1EffectsQueue = Immutable.fromJS(payload.effectsQueue);
     this.requestNPC(_battlePC2NPC1v1.get('npc_id')); // should delete this line
+    this.emitChange();
+  },
+
+  handleComplete: function(payload) {
+    _complete = _complete.update(payload.battleType, function(complete) {
+      return Immutable.fromJS(payload.complete);
+    });
     this.emitChange();
   },
 

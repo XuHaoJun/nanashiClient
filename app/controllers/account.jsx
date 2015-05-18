@@ -6,20 +6,18 @@ module.exports = {
   loginRoute: function() {
     if (AccountModel.isEmpty()) {
       var LoginPage = require('../views/account/loginPage');
-      React.render(<LoginPage />, document.body);
+      this.render(<LoginPage />);
     } else {
-      var Router = require('../router');
-      Router.setRoute('/stage');
+      this.setRoute('/stage');
     }
   },
 
   registerRoute: function() {
     if (AccountModel.isEmpty()) {
       var RegisterPage = require('../views/account/registerPage');
-      React.render(<RegisterPage />, document.body);
+      this.render(<RegisterPage />);
     } else {
-      var Router = require('../router');
-      Router.setRoute('/stage');
+      this.setRoute('/stage');
     }
   },
 
@@ -28,14 +26,13 @@ module.exports = {
     if (AccountModel.isEmpty()) {
       AccountModel.fetch(function(err) {
         if (AccountModel.isEmpty()) {
-          var Router = require('../router');
-          Router.setRoute('/login');
+          this.setRoute('/login');
         } else {
-          React.render(<CardPartyPage />, document.body);
+          this.render(<CardPartyPage />);
         }
-      });
+      }.bind(this));
     } else {
-      React.render(<CardPartyPage />, document.body);
+      this.render(<CardPartyPage />);
     }
   },
 
@@ -44,14 +41,13 @@ module.exports = {
     if (AccountModel.isEmpty()) {
       AccountModel.fetch(function(err) {
         if (AccountModel.isEmpty()) {
-          var Router = require('../router');
-          Router.setRoute('/login');
+          this.setRoute('/login');
         } else {
-          React.render(<DrawCardPage />, document.body);
+          this.render(<DrawCardPage />);
         }
-      });
+      }.bind(this));
     } else {
-      React.render(<DrawCardPage />, document.body);
+      this.render(<DrawCardPage />);
     }
   },
 

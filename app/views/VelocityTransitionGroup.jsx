@@ -1,5 +1,5 @@
 var React = require('react');
-var ReactTransitionGroup = React.addons.TransitionGroup;
+var ReactTransitionGroup = require('react/addons').addons.TransitionGroup;
 var Velocity = require('velocity-animate');
 require('velocity-animate/velocity.ui.js');
 

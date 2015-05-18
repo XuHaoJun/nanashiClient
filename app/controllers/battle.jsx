@@ -7,6 +7,7 @@ var SocketModel = require('../models/socket');
 
 var BattleController = module.exports = {
   homeRoute: function(targetType, id) {
+    var Router = require('../router');
     console.log(targetType, id);
     if (SocketModel.isDisconected) {
       SocketModel.connect();
@@ -16,7 +17,7 @@ var BattleController = module.exports = {
       BattleModel.requestNPC(id);
     }
     var renderBattlePage = function() {
-      React.render(<BattlePage />, document.body);
+      Router.render(<BattlePage />);
       BattleModel.removeInitializeListener(renderBattlePage);
     };
     BattleModel.addInitializeListener(renderBattlePage);

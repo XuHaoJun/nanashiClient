@@ -111,11 +111,11 @@ var BattlePage = module.exports = React.createClass({
       var userCard;
       var index = effect.getIn(['user', 'round_card_slot_index']);
       var userPlayer = effect.getIn(['user', 'round_player']);
-      if (userPlayer === 'NPC') {
-        userCard = this.state.battlePC2NPC1v1.getIn(['npcBattleCardPartyInfo', 'cardParty', index]);
-      } else {
-        userCard = this.state.battlePC2NPC1v1.getIn(['accountBattleCardPartyInfo', 'cardParty', index]);
-      }
+      var targetCardPartyInfo = (
+        userPlayer === 'NPC' ?
+                       'npcBattleCardPartyInfo' : 'accountBattleCardPartyInfo'
+      );
+      userCard = this.state.battlePC2NPC1v1.getIn([targetCardPartyInfo, 'cardParty', index]);
       var targetCard;
       var target = effect.getIn(['effects', 0, 'hp', '$dec', 'target']);
       var targetPlayer = target.get('round_player');
@@ -193,28 +193,28 @@ var BattlePage = module.exports = React.createClass({
                       <Colm md={6}>
                           <Row>
                               <Colm md={6}>
-                                  <Button bsSize="large" block onClick={this.handleUseSkill.bind(this, 1, skill1, card)}>
+                                  <Button block onClick={this.handleUseSkill.bind(this, 1, skill1, card)}>
                                       {SkillModel.getSkillNameById(skill1)}
                                   </Button>
-                                  <Button bsSize="large" block onClick={this.handleUseSkill.bind(this, 2, skill2, card)}>
+                                  <Button block onClick={this.handleUseSkill.bind(this, 2, skill2, card)}>
                                       {SkillModel.getSkillNameById(skill2)}
                                   </Button>
                               </Colm>
                               <Colm md={6}>
-                                  <Button bsSize="large" block onClick={this.handleUseSkill.bind(this, 3, skill3, card)}>
+                                  <Button block onClick={this.handleUseSkill.bind(this, 3, skill3, card)}>
                                       {SkillModel.getSkillNameById(skill3)}
                                   </Button>
-                                  <Button bsSize="large" block onClick={this.handleUseSkill.bind(this, 4, skill4, card)}>
+                                  <Button block onClick={this.handleUseSkill.bind(this, 4, skill4, card)}>
                                       {SkillModel.getSkillNameById(skill4)}
                                   </Button>
                               </Colm>
                           </Row>
                       </Colm>
                       <Colm md={6}>
-                          <Button bsSize="large">
+                          <Button>
                               替換
                           </Button>
-                          <Button bsSize="large" href="#/stage">
+                          <Button href="#/stage">
                               逃跑
                           </Button>
                       </Colm>

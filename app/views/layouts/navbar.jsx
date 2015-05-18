@@ -10,14 +10,6 @@ var NavItem = BS.NavItem;
 var MyNavbar = module.exports = React.createClass({
   mixins: [PureRenderMixin],
 
-  componentDidMount: function() {
-    $(document.body).css('padding-top', '70px');
-  },
-
-  componentWillUnmount: function() {
-    $(document.body).css('padding-top', '');
-  },
-
   render: function() {
     var brand = (<a href="#/">那那西傳說</a>);
     return (

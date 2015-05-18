@@ -5,17 +5,17 @@ var AccountModel = require('../models/account');
 module.exports = {
   homeRoute: function() {
     var StagePage = require('../views/stage/stagePage');
+    var Router = require('../router');
     if (AccountModel.isEmpty()) {
       AccountModel.fetch(function(err) {
         if (AccountModel.isEmpty()) {
-          var Router = require('../router');
           Router.setRoute('/login');
         } else {
-          React.render(<StagePage />, document.body);
+          Router.render(<StagePage />);
         }
       });
     } else {
-      React.render(<StagePage />, document.body);
+      Router.render(<StagePage />);
     }
   }
 };

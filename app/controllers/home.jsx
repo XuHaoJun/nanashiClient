@@ -4,12 +4,12 @@ var AccountModel = require('../models/account');
 
 var HomeController = module.exports = function() {
   var Home = require('../views/home');
+  var Router = require('../router');
   if (AccountModel.isEmpty()) {
     AccountModel.fetch(function(err) {
       if (AccountModel.isEmpty()) {
-        React.render(<Home />, document.body);
+        Router.render(<Home />);
       } else {
-        var Router = require('../router');
         Router.setRoute('/stage');
       }
     });

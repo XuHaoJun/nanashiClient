@@ -11,7 +11,7 @@ var LoginPage = module.exports = React.createClass({
   mixins: [PureRenderMixin],
   render: function() {
     return (
-      <div>
+      <div style={{paddingTop: '70px'}}>
           <MyNavbar />
           <Grid fluid>
               <Row>

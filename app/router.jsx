@@ -21,10 +21,10 @@ var routes = {
 var _router = Router(routes);
 
 _router.configure({
-  async: true,
   notfound: function() {
-    _router.setRoute('/');
+    this.setRoute('/');
   }
 });
+
 
 module.exports = _router;
