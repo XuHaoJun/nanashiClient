@@ -6,6 +6,7 @@ var Grid = BS.Grid;
 var Row = BS.Row;
 var Colm = BS.Col;
 var Button = BS.Button;
+var buzz = require('buzz');
 
 var BattleModel = require('../../models/battle');
 var SkillModel = require('../../models/skill');
@@ -46,9 +47,17 @@ var BattlePage = module.exports = React.createClass({
 
   componentDidMount: function() {
     BattleModel.addChangeListener(this._onChange);
+    var mySound = new buzz.sound( "/sounds/game_maoudamashii_1_battle18", {
+      formats: [ "ogg", "mp3"],
+      volume: 20,
+      preload: true
+    });
+    mySound.play().loop();
+    this.bgm = mySound;
   },
 
   componentWillUnmount: function() {
+    this.bgm.stop();
     BattleModel.removeChangeListener(this._onChange);
   },
 

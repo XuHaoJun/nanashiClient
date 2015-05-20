@@ -2,7 +2,6 @@ window.$ = require('jquery');
 window.jQuery = require('jquery');
 window.React = require('react');
 
-
 var React = require('react');
 var VelocityTransitionGroup = require('./views/VelocityTransitionGroup');
 
@@ -18,7 +17,7 @@ var App = React.createClass({
     Router.render = function(component) {
       this.setState({page: component});
     }.bind(this);
-    Router.init();
+    Router.init('/');
   },
   render: function() {
     var enterTransition = [[
