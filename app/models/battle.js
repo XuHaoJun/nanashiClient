@@ -39,11 +39,10 @@ var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
 
   useSkillsByPC: function(prepareUseSkills, battleType) {
     var payload = {
-      action: 'useSkillsByPC',
       prepareUseSkills: prepareUseSkills,
       battleType: battleType
     };
-    SocketModel.emit('battle', payload);
+    SocketModel.emit('battle:useSkillsByPC', payload);
   },
 
   handleEffectsQueue: function(payload) {
@@ -61,8 +60,8 @@ var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
   },
 
   requestNPC: function(npcId) {
-    var payload = {action: 'requestNPC', npcId: npcId};
-    SocketModel.emit('battle', payload);
+    var payload = {npcId: npcId};
+    SocketModel.emit('battle:requestNPC', payload);
   },
 
   emitError: function() {

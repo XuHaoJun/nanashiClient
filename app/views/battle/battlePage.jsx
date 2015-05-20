@@ -60,7 +60,7 @@ var BattlePage = module.exports = React.createClass({
   componentWillUpdate: function(nextProps, nextState) {
     if (this.state.battlePC2NPC1v1.get('num_round') !=
       nextState.battlePC2NPC1v1.get('num_round')) {
-      nextState.round_card_slot_index = 0;
+        nextState.round_card_slot_index = 0;
     }
   },
 
@@ -170,7 +170,7 @@ var BattlePage = module.exports = React.createClass({
               </Colm>
           </Row>
           <nav className="navbar navbar-fixed-bottom"
-               style={{marginBottom: '6vh'}}>
+               style={{marginBottom: '1vh'}}>
               <Grid fluid>
                   <Row>
                       <Colm md={4} xs={4} className={cardClassName}>
@@ -190,30 +190,33 @@ var BattlePage = module.exports = React.createClass({
                       </Colm>
                   </Row>
                   <Row>
+                      <Colm md={3}>
+                      </Colm>
                       <Colm md={6}>
                           <Row>
                               <Colm md={6}>
-                                  <Button block onClick={this.handleUseSkill.bind(this, 1, skill1, card)}>
-                                      {SkillModel.getSkillNameById(skill1)}
+                                  <Button block onClick={this.handleUseSkill.bind(this, 1, skill1, card)}
+                                          disabled={SkillModel.getSkillNameById(skill1) ? false : true}>
+                                      {SkillModel.getSkillNameById(skill1) || '無'}
                                   </Button>
-                                  <Button block onClick={this.handleUseSkill.bind(this, 2, skill2, card)}>
-                                      {SkillModel.getSkillNameById(skill2)}
+                                  <Button block onClick={this.handleUseSkill.bind(this, 2, skill2, card)}
+                                          disabled={SkillModel.getSkillNameById(skill2) ? false : true}>
+                                      {SkillModel.getSkillNameById(skill2) || '無'}
                                   </Button>
                               </Colm>
                               <Colm md={6}>
-                                  <Button block onClick={this.handleUseSkill.bind(this, 3, skill3, card)}>
-                                      {SkillModel.getSkillNameById(skill3)}
+                                  <Button block onClick={this.handleUseSkill.bind(this, 3, skill3, card)}
+                                          disabled={SkillModel.getSkillNameById(skill3) ? false : true}>
+                                      {SkillModel.getSkillNameById(skill3) || '無'}
                                   </Button>
-                                  <Button block onClick={this.handleUseSkill.bind(this, 4, skill4, card)}>
-                                      {SkillModel.getSkillNameById(skill4)}
+                                  <Button block onClick={this.handleUseSkill.bind(this, 4, skill4, card)}
+                                          disabled={SkillModel.getSkillNameById(skill4) ? false : true}>
+                                      {SkillModel.getSkillNameById(skill4) || '無'}
                                   </Button>
                               </Colm>
                           </Row>
                       </Colm>
-                      <Colm md={6}>
-                          <Button>
-                              替換
-                          </Button>
+                      <Colm md={3}>
                           <Button href="#/stage">
                               逃跑
                           </Button>

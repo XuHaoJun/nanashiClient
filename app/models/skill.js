@@ -16,7 +16,7 @@ var SkillModel = module.exports = assign({}, EventEmitter.prototype, {
     case 4:
       return '飛天跳躍';
     default:
-      return '無';
+      return null;
     }
   }
 });
