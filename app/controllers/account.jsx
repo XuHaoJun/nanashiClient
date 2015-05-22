@@ -4,54 +4,59 @@ var AccountModel = require('../models/account');
 
 module.exports = {
   loginRoute: function() {
+    var Router = require('../router');
     if (AccountModel.isEmpty()) {
       var LoginPage = require('../views/account/loginPage');
-      this.render(<LoginPage />);
+      Router.render(<LoginPage />);
     } else {
-      this.setRoute('/stage');
+      Router.setRoute('/stage');
     }
   },
 
   registerRoute: function() {
+    var Router = require('../router');
     if (AccountModel.isEmpty()) {
       var RegisterPage = require('../views/account/registerPage');
-      this.render(<RegisterPage />);
+      Router.render(<RegisterPage />);
     } else {
-      this.setRoute('/stage');
+      Router.setRoute('/stage');
     }
   },
 
   cardPartyRoute: function() {
+    var Router = require('../router');
     var CardPartyPage = require('../views/account/cardPartyPage');
     if (AccountModel.isEmpty()) {
       AccountModel.fetch(function(err) {
         if (AccountModel.isEmpty()) {
-          this.setRoute('/login');
+          Router.setRoute('/login');
         } else {
-          this.render(<CardPartyPage />);
+          Router.render(<CardPartyPage />);
         }
-      }.bind(this));
+      });
     } else {
-      this.render(<CardPartyPage />);
+      Router.render(<CardPartyPage />);
     }
   },
 
   drawCardRoute: function() {
+    var Router = require('../router');
     var DrawCardPage = require('../views/account/drawCardPage');
     if (AccountModel.isEmpty()) {
       AccountModel.fetch(function(err) {
         if (AccountModel.isEmpty()) {
-          this.setRoute('/login');
+          Router.setRoute('/login');
         } else {
-          this.render(<DrawCardPage />);
+          Router.render(<DrawCardPage />);
         }
-      }.bind(this));
+      });
     } else {
-      this.render(<DrawCardPage />);
+      Router.render(<DrawCardPage />);
     }
   },
 
   cardPartyJoin: function(cardId, slotIndex) {
+    var Router = require('../router');
     AccountModel.cardPartyJoin(cardId, slotIndex);
   },
 
@@ -92,31 +97,31 @@ module.exports = {
   },
 
   logout: function() {
+    var Router = require('../router');
     if (AccountModel.isEmpty()) {
       return;
     }
     AccountModel.logout(function(err) {
-      var Router = require('../router');
       Router.setRoute('/login');
     });
   },
 
   login: function(username, password) {
+    var Router = require('../router');
     AccountModel.login(username, password, function(err) {
       if (err !== null) {
         return;
       }
-      var Router = require('../router');
       Router.setRoute('/stage');
     });
   },
 
   register: function(postForm) {
+    var Router = require('../router');
     AccountModel.register(postForm, function(err) {
       if (err !== null) {
         return;
       }
-      var Router = require('../router');
       Router.setRoute('/stage');
     });
   }

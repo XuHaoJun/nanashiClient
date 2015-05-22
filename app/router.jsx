@@ -22,7 +22,7 @@ var _router = Router(routes);
 
 _router.configure({
   notfound: function() {
-    this.setRoute('/');
+    _router.setRoute('/');
   }
 });
 
