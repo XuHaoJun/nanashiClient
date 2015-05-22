@@ -139,8 +139,14 @@ var LoginPanel = module.exports = React.createClass({
               </Button>
               <div style={{marginTop: '24px'}}>
                   <a href="/auth/facebook">
-                      <img ref="fbLogin"
-                           src="/images/fbLogin.png"
+                      <img src="/images/fbLogin.png"
+                           style={{width: '45px', height: '45px'}}
+                           onMouseEnter={this.scaleStart}
+                           onMouseLeave={this.scaleReverse}
+                      />
+                  </a>
+                  <a href="/auth/google" style={{marginLeft: '12px'}}>
+                      <img src="/images/googleLogin.png"
                            style={{width: '45px', height: '45px'}}
                            onMouseEnter={this.scaleStart}
                            onMouseLeave={this.scaleReverse}
