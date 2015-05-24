@@ -1,6 +1,8 @@
 var EventEmitter = require('events').EventEmitter;
 var Immutable = require('immutable');
 var assign = require('object-assign');
+var request = require('superagent');
+var rp = require('superagent-promise');
 
 var INITIALIZE_EVENT = '_initialize';
 
@@ -20,6 +22,8 @@ var _complete = Immutable.fromJS({
   battlePC2NPC1v1: null
 });
 
+var _noCompletes = Immutable.fromJS([]);
+
 var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
 
   getBattlePC2NPC1v1: function() {
@@ -30,11 +34,26 @@ var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
     return _battlePC2NPC1v1EffectsQueue;
   },
 
+  getNoCompletes: function() {
+    return _noCompletes;
+  },
+
   initialize: function(payload) {
-    console.log(payload);
     _battlePC2NPC1v1 = Immutable.fromJS(payload.battlePC2NPC1v1);
     this.emitChange();
     this.emitInitialize();
+  },
+
+  noCompletes : function() {
+    return (
+      rp('GET', '/api/battle/noCompletes')
+        .end()
+        .then(function(res) {
+          _noCompletes = Immutable.fromJS(res.body);
+          this.emitChange();
+          return _noCompletes;
+        }.bind(this)).catch(console.log)
+    );
   },
 
   useSkillsByPC: function(prepareUseSkills, battleType) {

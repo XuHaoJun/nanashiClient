@@ -1,7 +1,7 @@
 var EventEmitter = require('events').EventEmitter;
 var Immutable = require('immutable');
 var assign = require('object-assign');
-var request = require('superagent');
+var rp = require('superagent-promise');
 
 var CHANGE_EVENT = 'change';
 
@@ -20,6 +20,30 @@ var _lastErrors = Immutable.Map({});
 var SocketModel = require('./socket');
 
 var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
+
+  emitError: function() {
+    this.emit(ERROR_EVENT);
+  },
+
+  emitChange: function() {
+    this.emit(CHANGE_EVENT);
+  },
+
+  addErrorListener: function(callback) {
+    this.on(ERROR_EVENT, callback);
+  },
+
+  removeErrorListener: function(callback) {
+    this.removeListener(ERROR_EVENT, callback);
+  },
+
+  addChangeListener: function(callback) {
+    this.on(CHANGE_EVENT, callback);
+  },
+
+  removeChangeListener: function(callback) {
+    this.removeListener(CHANGE_EVENT, callback);
+  },
 
   get: function() {
     return _account;
@@ -57,84 +81,82 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
     return _account.get('id') ? false : true;
   },
 
-  login: function(username, password, callback) {
-    request.post('/api/account/login')
-      .send({username: username, password: password})
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err !== null) {
-          _account = Immutable.Map({});
-          if (err.message == 'Unauthorized') {
-            res.body = {error: 'wrong password or username'};
-          }
-          _lastErrors = _lastErrors.set('login', Immutable.fromJS(res.body));
-          this.emitError();
-        } else {
+  login: function(username, password) {
+    return (
+      rp.post('/api/account/login', {username: username, password: password})
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
           SocketModel.connect();
-        }
-        if (callback) {
-          callback(err);
-        }
-        this.emitChange();
-      }.bind(this));
+          this.emitChange();
+          return res.body;
+        }.bind(this)).catch(function(err) {
+          var loginError = {error: 'wrong password or username'};
+          _lastErrors = _lastErrors.set('login', Immutable.fromJS(loginError));
+          this.emitError();
+          _account = Immutable.Map({});
+          this.emitChange();
+          throw err;
+        }.bind(this))
+    );
   },
 
-  fetch: function(callback) {
-    request.get('/api/account')
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err !== null) {
-          _account = Immutable.Map({});
-          _lastErrors = _lastErrors.set('fetch', Immutable.fromJS(res.body));
-          this.emitError();
-        } else {
+  fetch: function() {
+    return (
+      rp.get('/api/account')
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
           SocketModel.connect();
           _account = Immutable.fromJS(res.body);
-        }
-        if (callback) {
-          callback(err);
-        }
-        this.emitChange();
-      }.bind(this));
-  },
-
-  logout: function(callback) {
-    request.post('/api/account/logout')
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        SocketModel.disconnect();
-        _account = Immutable.Map({});
-        if (callback) {
-          callback(err);
-        }
-        this.emitChange();
-      }.bind(this));
-  },
-
-  register: function(form, callback) {
-    request.post('/api/account/register')
-      .send(form)
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err) {
-          _lastErrors = _lastErrors.set('register', Immutable.fromJS(res.body));
+          this.emitChange();
+          return res.body;
+        }.bind(this)).catch(function(err) {
+          _account = Immutable.Map({});
+          _lastErrors = _lastErrors.set('fetch', Immutable.fromJS(err.response.body));
           this.emitError();
-        }
-        if (callback) {
-          callback(err);
-        }
-      }.bind(this));
+          this.emitChange();
+          throw err;
+        }.bind(this))
+    );
   },
 
-  decomposeCard: function(cardId, callback) {
+  logout: function() {
+    return (
+      rp.post('/api/account/logout')
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
+          SocketModel.disconnect();
+          _account = Immutable.Map({});
+          return res.body;
+        })
+    );
+  },
+
+  register: function(form) {
+    return (
+      rp.post('/api/account/register', form)
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
+          return res.body;
+        }.bind(this)).catch(function(err) {
+          _lastErrors = _lastErrors.set('register', Immutable.fromJS(err.response.body));
+          this.emitError();
+          throw err;
+        }.bind(this))
+    );
+  },
+
+  decomposeCard: function(cardId) {
     var form = {id: cardId};
-    request.post('/api/account/cardDecompose')
-      .send(form)
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err === null) {
+    return (
+      rp.post('/api/account/cardDecompose', form)
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
           var getCry = res.body;
-          console.log(getCry);
           _account = _account.update('cry', function(cry) { return cry + getCry; });
           _account = _account.update('deck', function(deck) {
             var index = deck.findIndex(function(card) {
@@ -147,23 +169,22 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
             return deck;
           });
           this.emitChange();
-        } else {
-          _lastErrors = _lastErrors.set('decomposeCard', Immutable.fromJS(res.body));
+          return res.body;
+        }.bind(this)).catch(function(err) {
+          _lastErrors = _lastErrors.set('decomposeCard', Immutable.fromJS(err.message));
           this.emitError();
-        }
-        if (callback) {
-          callback(err);
-        }
-      }.bind(this));
+          throw err;
+        })
+    );
   },
 
-  cardEffortUpdate: function(cardId, updates, callback) {
+  cardEffortUpdate: function(cardId, updates) {
     var form = {id: cardId, cardEffortUpdates: updates};
-    request.post('/api/account/cardEffortUpdate')
-      .send(form)
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err === null) {
+    return (
+      rp.post('/api/account/cardEffortUpdate', form)
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
           var foundIndex;
           var card = _account.get('deck').find(function(card2, index) {
             if (card2.get('id') == cardId) {
@@ -181,26 +202,26 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
             return newCard;
           });
           this.emitChange();
-        } else {
-          _lastErrors = _lastErrors.set('cardEffortUpdate', Immutable.fromJS(res.body));
+          return res.body;
+        }.bind(this).catch(function(err) {
+          _lastErrors = _lastErrors.set('cardEffortUpdate',
+                                        Immutable.fromJS(err.response.body));
           this.emitError();
-        }
-        if (callback) {
-          callback(err);
-        }
-      }.bind(this));
+          throw err;
+        }.bind(this)))
+    );
   },
 
-  cardLevelUp: function(cardId, callback) {
+  cardLevelUp: function(cardId) {
     var form = {id: cardId};
     var card = _account.get('deck').find(function(card2) {
       return card2.get('id') == cardId;
     });
-    request.post('/api/account/cardLevelUp')
-      .send(form)
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err === null) {
+    return (
+      rp.post('/api/account/cardLevelUp', form)
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
           var foundIndex;
           var card = _account.get('deck').find(function(card, index) {
             if (card.get('id') == cardId) {
@@ -220,23 +241,23 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
               return newCard;
             });
           this.emitChange();
-        } else {
-          _lastErrors = _lastErrors.set('cardLevelUp', Immutable.fromJS(res.body));
+          return res.body;
+        }.bind(this)).catch(function(err) {
+          _lastErrors = _lastErrors.set('cardLevelUp',
+                                        Immutable.fromJS(err.response.body));
           this.emitError();
-        }
-        if (callback) {
-          callback(err);
-        }
-      }.bind(this));
+          throw err;
+        }.bind(this))
+    );
   },
 
   cardPartyLeave: function(cardPartyId, callback) {
     var form = {cardPartyId: cardPartyId};
-    request.post('/api/account/cardPartyLeave')
-      .send(form)
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err === null) {
+    return (
+      rp.post('/api/account/cardPartyLeave', form)
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
           var foundCard;
           _account = _account.updateIn(
             ['cardPartyInfo', 0, 'cardParty'],
@@ -253,26 +274,26 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
             }
           );
           this.emitChange();
-        } else {
-          _lastErrors = _lastErrors.set('cardPartyLeave', Immutable.fromJS(res.body));
+          return res.body;
+        }.bind(this)).catch(function(err) {
+          _lastErrors = _lastErrors.set('cardPartyLeave',
+                                        Immutable.fromJS(err.response.body));
           this.emitError();
-        }
-        if (callback) {
-          callback(err);
-        }
-      }.bind(this));
+          throw err;
+        }.bind(this))
+    );
   },
 
-  cardPartyJoin: function(cardId, slotIndex, callback) {
+  cardPartyJoin: function(cardId, slotIndex) {
     var cardPartyInfoId = _account.get('cardPartyInfo').get(0).get('id');
     var form = {cardId: cardId,
                 slotIndex: slotIndex,
                 cardPartyInfoId: cardPartyInfoId};
-    request.post('/api/account/cardPartyJoin')
-      .send(form)
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err === null) {
+    return (
+      rp.post('/api/account/cardPartyJoin', form)
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
           var foundCard = _account.get('deck').find(function(card) {
             return card.get('id') == cardId;
           });
@@ -299,15 +320,15 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
                                  slot_index: slotIndex}))
               );
             });
-        } else {
-          _lastErrors = _lastErrors.set('cardPartyJoin', Immutable.fromJS(res.body));
+          this.emitChange();
+          return res.body;
+        }.bind(this)).catch(function(err) {
+          _lastErrors = _lastErrors.set('cardPartyJoin',
+                                        Immutable.fromJS(err.response.body));
           this.emitError();
-        }
-        if (callback) {
-          callback(err);
-        }
-        this.emitChange();
-      }.bind(this));
+          throw err;
+        }.bind(this))
+    );
   },
 
   getLastDrawedCard: function() {
@@ -318,48 +339,24 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
     return last || null;
   },
 
-  drawCard: function(callback) {
-    request.post('/api/account/drawCard')
-      .set('Accept', 'application/json')
-      .end(function(err, res) {
-        if (err == null && res.body) {
+  drawCard: function() {
+    return (
+      rp.post('/api/account/drawCard')
+        .set('Accept', 'application/json')
+        .end()
+        .then(function(res) {
           var card = Immutable.fromJS(res.body);
           _account = _account.set('deck', _account.get('deck').push(card));
           var cardPrice = 1;
           _account = _account.set('money', _account.get('money') - cardPrice);
           _drawedCards = _drawedCards.push(card);
-        } else {
-          _lastErrors = _lastErrors.set('drawCard', Immutable.fromJS(res.body));
+          this.emitChange();
+        }.bind(this)).catch(function(err) {
+          _lastErrors = _lastErrors.set('drawCard',
+                                        Immutable.fromJS(err.response.body));
           this.emitError();
-        }
-        if (callback) {
-          callback(err, card);
-        }
-        this.emitChange();
-      }.bind(this));
-  },
-
-  emitError: function() {
-    this.emit(ERROR_EVENT);
-  },
-
-  emitChange: function() {
-    this.emit(CHANGE_EVENT);
-  },
-
-  addErrorListener: function(callback) {
-    this.on(ERROR_EVENT, callback);
-  },
-
-  removeErrorListener: function(callback) {
-    this.removeListener(ERROR_EVENT, callback);
-  },
-
-  addChangeListener: function(callback) {
-    this.on(CHANGE_EVENT, callback);
-  },
-
-  removeChangeListener: function(callback) {
-    this.removeListener(CHANGE_EVENT, callback);
+          throw err;
+        }.bind(this))
+    );
   }
 });

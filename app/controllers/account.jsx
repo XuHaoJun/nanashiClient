@@ -68,32 +68,28 @@ module.exports = {
     if (AccountModel.isEmpty()) {
       return;
     }
-    AccountModel.drawCard(function(err) {
-    });
+    AccountModel.drawCard();
   },
 
   decomposeCard: function(cardId) {
     if (AccountModel.isEmpty()) {
       return;
     }
-    AccountModel.decomposeCard(cardId, function(err) {
-    });
+    AccountModel.decomposeCard(cardId);
   },
 
   cardEffortUpdate: function(cardId, updates) {
     if (AccountModel.isEmpty()) {
       return;
     }
-    AccountModel.cardEffortUpdate(cardId, updates, function(err) {
-    });
+    AccountModel.cardEffortUpdate(cardId, updates);
   },
 
   cardLevelUp: function(cardId) {
     if (AccountModel.isEmpty()) {
       return;
     }
-    AccountModel.cardLevelUp(cardId, function(err) {
-    });
+    AccountModel.cardLevelUp(cardId);
   },
 
   logout: function() {
@@ -108,20 +104,14 @@ module.exports = {
 
   login: function(username, password) {
     var Router = require('../router');
-    AccountModel.login(username, password, function(err) {
-      if (err !== null) {
-        return;
-      }
+    AccountModel.login(username, password).then(function() {
       Router.setRoute('/stage');
     });
   },
 
   register: function(postForm) {
     var Router = require('../router');
-    AccountModel.register(postForm, function(err) {
-      if (err !== null) {
-        return;
-      }
+    AccountModel.register(postForm).then(function() {
       Router.setRoute('/stage');
     });
   }

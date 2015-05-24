@@ -8,12 +8,10 @@ var SocketModel = require('../models/socket');
 var BattleController = module.exports = {
   homeRoute: function(targetType, id) {
     var Router = require('../router');
-    console.log(targetType, id);
     if (SocketModel.isDisconected) {
       SocketModel.connect();
     }
     if (targetType === 'NPC') {
-      /* SockModel.on('connection', */
       BattleModel.requestNPC(id);
     }
     var renderBattlePage = function() {

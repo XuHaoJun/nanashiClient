@@ -6,15 +6,48 @@ var Row = BS.Row;
 var Colm = BS.Col;
 var Button = BS.Button;
 var ButtonToolbar = BS.ButtonToolbar;
+var Panel = BS.Panel;
 
 var ChatPanel = require('../chatPanel');
 var MenuButton = require('../account/menuButton');
 
 var AccountModel = require('../../models/account');
+var BattleModel = require('../../models/battle');
+
+var NoCompletes = React.createClass({
+  mixins: [PureRenderMixin],
+  handleClick: function(nc, event) {
+    var Router = require('../../router');
+    event.preventDefault();
+    if (nc.get('battleType') === 'battlePC2NPC1v1') {
+      Router.setRoute('/battle/NPC/'+nc.get('npcId'));
+    }
+  },
+  render: function() {
+    var ncs = this.props.noCompletes.map(function(nc, index) {
+      if (nc.get('battleType') === 'battlePC2NPC1v1') {
+        return (
+          <Button key={nc}
+                  block
+                  onClick={this.handleClick.bind(this, nc)}>
+              電腦: {nc.get('npcName')}
+          </Button>
+        );
+      }
+      return null;
+    }, this);
+    return (
+      <Panel header='尚未結束戰鬥列表'>
+          {ncs}
+      </Panel>
+    );
+  }
+});
 
 function getInitialState() {
   return {
     account: AccountModel.get(),
+    noCompletes: BattleModel.getNoCompletes()
   };
 }
 
@@ -27,10 +60,12 @@ var StagePage = module.exports = React.createClass({
 
   componentDidMount: function() {
     AccountModel.addChangeListener(this._onChange);
+    BattleModel.addChangeListener(this._onChange);
   },
 
   componentWillUnmount: function() {
     AccountModel.removeChangeListener(this._onChange);
+    BattleModel.removeChangeListener(this._onChange);
   },
 
   _onChange: function() {
@@ -62,20 +97,29 @@ var StagePage = module.exports = React.createClass({
                   <MenuButton />
               </Colm>
           </Row>
-          <Row>
-              <Colm md={12}>
-                  地圖： 貓咪實驗室
-              </Colm>
-          </Row>
-          <Row>
-              <Colm md={6}>
-              </Colm>
-              <Colm md={6}>
-              <Button href="#/battle/NPC/1">
-                  NPC-01
-              </Button>
-              </Colm>
-          </Row>
+          <div style={{marginTop: '5vh'}}>
+              <Row>
+                  <Colm md={12}>
+                      地圖： 貓咪實驗室
+                  </Colm>
+              </Row>
+              <Row>
+                  <Colm md={4}>
+                  </Colm>
+                  <Colm md={4}>
+                      {
+                        this.state.noCompletes.count() > 0 ?
+                       <NoCompletes noCompletes={this.state.noCompletes} />
+                       :
+                       <Button href="#/battle/NPC/1">
+                       NPC-01
+                       </Button>
+                       }
+                  </Colm>
+                  <Colm md={4}>
+                  </Colm>
+              </Row>
+          </div>
           <div style={{width: '25vw',
                        position: 'fixed',
                        bottom: '0px',
