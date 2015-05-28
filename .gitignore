@@ -3,6 +3,8 @@ npm-debug.log
 
 .tern-port
 
+.browserify-cache.json
+
 app/views/**/*.js
 app/controllers/**/*.js
 app/app.js
