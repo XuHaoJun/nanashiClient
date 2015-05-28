@@ -97,7 +97,7 @@ module.exports = {
     if (AccountModel.isEmpty()) {
       return;
     }
-    AccountModel.logout(function(err) {
+    AccountModel.logout().then(function() {
       Router.setRoute('/login');
     });
   },

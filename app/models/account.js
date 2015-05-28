@@ -83,7 +83,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
   login: function(username, password) {
     return (
-      rp.post('/api/account/login', {username: username, password: password})
+      rp.post('/api/auth/local', {username: username, password: password})
         .set('Accept', 'application/json')
         .end()
         .then(function(res) {
@@ -136,7 +136,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
 
   register: function(form) {
     return (
-      rp.post('/api/account/register', form)
+      rp.post('/api/account', form)
         .set('Accept', 'application/json')
         .end()
         .then(function(res) {
