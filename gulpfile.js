@@ -11,6 +11,7 @@ var uglify  = require('gulp-uglify');
 var browserify = require('browserify');
 var browserifyInc = require('browserify-incremental');
 var xtend = require('xtend');
+var strictify = require('strictify');
 var react = require('gulp-react');
 var watchify = require('watchify');
 var gStreamify = require('gulp-streamify');
@@ -48,6 +49,7 @@ gulp.task('js:build', ['jsx:build'], function() {
   } else {
     b = browserify('./app/app.js', {fullPaths: false});
   }
+  b.transform(strictify);
   b.on('error', handleError('Browserify'));
   if (development) {
     browserifyInc(b, {cacheFile: './.browserify-cache.json'});
