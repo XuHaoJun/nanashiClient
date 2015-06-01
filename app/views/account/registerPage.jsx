@@ -9,6 +9,7 @@ var RegisterPanel = require('./registerPanel');
 
 var RegisterPage = module.exports = React.createClass({
   mixins: [PureRenderMixin],
+
   render: function() {
     return (
       <div style={{paddingTop: '70px'}}>

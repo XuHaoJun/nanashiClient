@@ -15,6 +15,9 @@ var MyNavbar = module.exports = React.createClass({
     return (
       <Navbar brand={brand} toggleNavKey={0} fixedTop>
           <CollapsibleNav eventKey={0}> {/* This is the eventKey referenced */}
+              <Nav navbar>
+                  <NavItem eventKey={1} href='/baseCards'>卡片資料</NavItem>
+              </Nav>
               <Nav navbar right>
                   <NavItem eventKey={1} href='/login'>登入</NavItem>
                   <NavItem eventKey={2} href='/register'>註冊</NavItem>
