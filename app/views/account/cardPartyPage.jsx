@@ -382,7 +382,7 @@ var CardPartyPage = module.exports = React.createClass({
       }
       slots.push(slot);
     }.bind(this));
-    var brand = (<a href="#/stage"><Glyphicon glyph='arrow-left' /> 返回關卡界面</a>);
+    var brand = (<a href="/stage"><Glyphicon glyph='arrow-left' /> 返回關卡界面</a>);
     return (
       <Grid>
           <Row>

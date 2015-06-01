@@ -82,7 +82,7 @@ var DrawCardPage = module.exports = React.createClass({
 
   render: function() {
     var brand = (
-      <a href="#/stage">
+      <a href="/stage">
           <Glyphicon glyph='arrow-left' /> 返回關卡界面
       </a>
     );

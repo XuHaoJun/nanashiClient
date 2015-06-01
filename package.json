@@ -21,12 +21,12 @@
     "description": "Nanashi game client",
     "dependencies": {
         "bootstrap": "^3.3.4",
-        "director": "^1.2.8",
         "immutable": "^3.7.3",
         "jquery": "^2.1.4",
         "material-ui": "^0.7.5",
         "material-ui-sass": "^0.7.5",
         "object-assign": "^2.0.0",
+        "page": "^1.6.3",
         "promise": "^7.0.1",
         "react": "^0.13.3",
         "react-bootstrap": "^0.22.6",
@@ -59,7 +59,7 @@
         "vinyl-source-stream": "^1.1.0",
         "watchify": "^3.2.1",
         "xtend": "^4.0.0",
-        "yargs": "^3.9.1"
+        "yargs": "^3.10.0"
     },
     "author": {
         "name": "XuHaoJun",

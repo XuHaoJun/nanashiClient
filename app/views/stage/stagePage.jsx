@@ -111,7 +111,7 @@ var StagePage = module.exports = React.createClass({
                         this.state.noCompletes.count() > 0 ?
                        <NoCompletes noCompletes={this.state.noCompletes} />
                        :
-                       <Button href="#/battle/NPC/1">
+                       <Button href="/battle/NPC/1">
                        NPC-01
                        </Button>
                        }
@@ -133,8 +133,8 @@ var StagePage = module.exports = React.createClass({
                        bottom: '5vh',
                       }}>
               <ButtonToolbar>
-                  <Button bsSize="large" href="#/cardParty">編隊</Button>
-                  <Button bsSize="large" href="#/drawCard">抽卡</Button>
+                  <Button bsSize="large" href="/cardParty">編隊</Button>
+                  <Button bsSize="large" href="/drawCard">抽卡</Button>
                   <Button bsSize="large">玩家對戰</Button>
               </ButtonToolbar>
           </div>

@@ -226,7 +226,7 @@ var BattlePage = module.exports = React.createClass({
                           </Row>
                       </Colm>
                       <Colm md={3}>
-                          <Button href="#/stage">
+                          <Button href="/stage">
                               逃跑
                           </Button>
                       </Colm>

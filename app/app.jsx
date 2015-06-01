@@ -13,18 +13,25 @@ var App = React.createClass({
       page: null
     };
   },
-  componentDidMount: function() {
+  componentWillMount: function() {
     Router.render = function(component) {
       this.setState({page: component});
     }.bind(this);
-    Router.init('/');
+    Router({
+      dispatch: false
+    });
+    if (window && window._routerInitPath) {
+      Router(window._routerInitPath);
+    } else {
+      Router('/');
+    }
   },
   render: function() {
     var enterTransition = [[
       'transition.fadeIn',
-      {duration: 500}
+      {duration: 600}
     ]];
-    var key = Router.getRoute(0);
+    var key = Router.getRoute();
     return (
       <VelocityTransitionGroup enterTransition={enterTransition}>
           <div key={key}>

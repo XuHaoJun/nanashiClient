@@ -1,4 +1,4 @@
-var Router = require('director').Router;
+var Router = require('page');
 
 var homeRoute = require('./controllers/home');
 var loginRoute = require('./controllers/account').loginRoute;
@@ -18,13 +18,17 @@ var routes = {
   '/battle/:targetType/:id': battleRoute
 };
 
-var _router = Router(routes);
+for (var path in routes) {
+  Router(path, routes[path]);
+}
 
-_router.configure({
-  notfound: function() {
-    _router.setRoute('/');
-  }
-});
+// use for server
+window.Router = Router;
 
+Router.setRoute = Router;
 
-module.exports = _router;
+Router.getRoute = function() {
+  return Router.current;
+};
+
+module.exports = Router;

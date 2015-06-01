@@ -9,6 +9,7 @@ app/views/**/*.js
 app/controllers/**/*.js
 app/app.js
 app/router.js
+dist/favicon.ico
 dist/fonts/glyphicons-halflings-regular.eot
 dist/fonts/glyphicons-halflings-regular.svg
 dist/fonts/glyphicons-halflings-regular.ttf

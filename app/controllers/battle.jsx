@@ -6,7 +6,9 @@ var BattleModel = require('../models/battle');
 var SocketModel = require('../models/socket');
 
 var BattleController = module.exports = {
-  homeRoute: function(targetType, id) {
+  homeRoute: function(ctx, next) {
+    var targetType = ctx.params.targetType;
+    var id = ctx.params.id;
     var Router = require('../router');
     if (SocketModel.isDisconected) {
       SocketModel.connect();

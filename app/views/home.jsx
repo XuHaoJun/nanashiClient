@@ -21,10 +21,7 @@ var Home = module.exports = React.createClass({
               <Jumbotron>
                   <h1>這頁是那那西傳說官方首頁</h1>
                   <p>未來放遊戲影片在這裡</p>
-                  <p><a href="#/battle">戰鬥頁面測試</a></p>
-                  <p><a href="#/deck">牌庫頁面測試</a></p>
-                  <p><a href="#/stage">關卡頁面測試</a></p>
-                  <p><Button bsStyle='primary' href="#/register">註冊</Button></p>
+                  <p><Button bsStyle='primary' href="/register">註冊</Button></p>
               </Jumbotron>
           </Grid>
       </div>
