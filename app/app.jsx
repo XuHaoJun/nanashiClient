@@ -2,6 +2,11 @@ window.$ = require('jquery');
 window.jQuery = require('jquery');
 window.React = require('react');
 
+window.prerenderReady = false;
+setTimeout(function() {
+  window.prerenderReady = true;
+}, 2500);
+
 var React = require('react');
 var VelocityTransitionGroup = require('./views/VelocityTransitionGroup');
 
@@ -13,6 +18,7 @@ var App = React.createClass({
       page: null
     };
   },
+
   componentWillMount: function() {
     Router.render = function(component) {
       this.setState({page: component});
@@ -20,12 +26,16 @@ var App = React.createClass({
     Router({
       dispatch: false
     });
+  },
+
+  componentDidMount: function() {
     if (window && window._routerInitPath) {
       Router(window._routerInitPath);
     } else {
       Router('/');
     }
   },
+
   render: function() {
     var enterTransition = [[
       'transition.fadeIn',

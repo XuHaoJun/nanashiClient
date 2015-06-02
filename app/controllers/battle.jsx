@@ -17,8 +17,12 @@ var BattleController = module.exports = {
       BattleModel.requestNPC(id);
     }
     var renderBattlePage = function() {
-      Router.render(<BattlePage />);
-      BattleModel.removeInitializeListener(renderBattlePage);
+      if (BattleModel.getBattlePC2NPC1v1() === null) {
+        Router.setRoute('/stage');
+      } else {
+        Router.render(<BattlePage />);
+        BattleModel.removeInitializeListener(renderBattlePage);
+      }
     };
     BattleModel.addInitializeListener(renderBattlePage);
   }

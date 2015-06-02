@@ -59,6 +59,7 @@ var StagePage = module.exports = React.createClass({
   },
 
   componentDidMount: function() {
+    document.title = '關卡 -Nanashi';
     AccountModel.addChangeListener(this._onChange);
     BattleModel.addChangeListener(this._onChange);
   },

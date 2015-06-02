@@ -12,6 +12,10 @@ var MenuButton = require('./account/menuButton');
 var Home = module.exports = React.createClass({
   mixins: [PureRenderMixin],
 
+  componentDidMount: function() {
+    document.title = 'Nanashi';
+  },
+
   render: function() {
     return (
       <div style={{paddingTop: '70px'}}>

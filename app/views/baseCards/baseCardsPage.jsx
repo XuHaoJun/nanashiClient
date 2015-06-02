@@ -74,6 +74,7 @@ var BaseCardsPage = module.exports = React.createClass({
   },
 
   componentDidMount: function() {
+    document.title = '卡片資料 - Nanashi';
     BaseCardsModel.addChangeListener(this._onChange);
   },
 

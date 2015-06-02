@@ -10,6 +10,10 @@ var RegisterPanel = require('./registerPanel');
 var RegisterPage = module.exports = React.createClass({
   mixins: [PureRenderMixin],
 
+  componentDidMount: function() {
+    document.title = '註冊 - Nanashi';
+  },
+
   render: function() {
     return (
       <div style={{paddingTop: '70px'}}>

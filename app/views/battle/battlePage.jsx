@@ -18,7 +18,7 @@ var Card = React.createClass({
     if (this.props.card) {
       return (
         <div onClick={this.props.onClick}>
-            {this.props.card.get('name')} ({this.props.card.get('hp')}/{this.props.card.get('max_hp')})
+            {this.props.card.get('name')} ({this.props.card.get('hp')}/{this.props.card.get('max_hp')}) {this.props.card.get('hp') <= 0 ? '死亡' : ''}
         </div>
       );
     }
@@ -46,6 +46,7 @@ var BattlePage = module.exports = React.createClass({
   },
 
   componentDidMount: function() {
+    document.title = '戰鬥 - Nanashi';
     BattleModel.addChangeListener(this._onChange);
     var mySound = new buzz.sound( "/sounds/game_maoudamashii_1_battle18", {
       formats: [ "ogg", "mp3"],
@@ -93,6 +94,8 @@ var BattlePage = module.exports = React.createClass({
     };
     if (accountCardParty.count() === round_card_slot_index) {
       BattleModel.useSkillsByPC(prepareUseSkills.toJSON(), 'battlePC2NPC1v1');
+      state.round_card_slot_index = 0;
+      state.prepareUseSkills = Immutable.fromJS([]);
     } else {
       state.round_card_slot_index = round_card_slot_index;
     }

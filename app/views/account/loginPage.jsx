@@ -9,6 +9,11 @@ var LoginPanel = require('./loginPanel');
 
 var LoginPage = module.exports = React.createClass({
   mixins: [PureRenderMixin],
+
+  componentDidMount: function() {
+    document.title = 'Nanashi - 登入';
+  },
+
   render: function() {
     return (
       <div style={{paddingTop: '70px'}}>

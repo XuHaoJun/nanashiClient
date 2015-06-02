@@ -60,6 +60,7 @@ var DrawCardPage = module.exports = React.createClass({
   },
 
   componentDidMount: function() {
+    document.title = '抽卡 - Nanashi';
     AccountModel.addChangeListener(this._onChange);
   },
 

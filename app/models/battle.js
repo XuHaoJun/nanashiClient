@@ -39,6 +39,7 @@ var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
   },
 
   initialize: function(payload) {
+    console.log(payload);
     _battlePC2NPC1v1 = Immutable.fromJS(payload.battlePC2NPC1v1);
     this.emitChange();
     this.emitInitialize();
@@ -65,9 +66,8 @@ var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
   },
 
   handleEffectsQueue: function(payload) {
-    console.log('handleEffectsQueue', payload);
     _battlePC2NPC1v1EffectsQueue = Immutable.fromJS(payload.effectsQueue);
-    this.requestNPC(_battlePC2NPC1v1.get('npc_id')); // should delete this line
+    this.requestNPC(_battlePC2NPC1v1.get('npcId')); // should delete this line
     this.emitChange();
   },
 
@@ -81,6 +81,10 @@ var BattleModel = module.exports = assign({}, EventEmitter.prototype, {
   requestNPC: function(npcId) {
     var payload = {npcId: npcId};
     SocketModel.emit('battle:requestNPC', payload);
+  },
+
+  runAwayNPC: function() {
+    SocketModel.emit('battle:runAwayNPC', 'battlePC2NPC1v1');
   },
 
   emitError: function() {

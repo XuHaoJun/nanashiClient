@@ -248,6 +248,7 @@ var CardPartyPage = module.exports = React.createClass({
   },
 
   componentDidMount: function() {
+    document.title = '隊伍 - Nanashi';
     AccountModel.addChangeListener(this._onChange);
   },
 
