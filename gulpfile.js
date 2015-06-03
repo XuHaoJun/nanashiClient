@@ -3,6 +3,7 @@ var production =  ( ENV == 'pro' || ENV == 'production' ? true : false);
 var development = ( ENV == 'dev' || ENV == 'development' || !production  ? true : false);
 var argv = require('yargs').argv;
 var gulp = require('gulp');
+var livereload = require('gulp-livereload');
 var merge = require('merge-stream');
 var gutil = require('gulp-util');
 var notify = require('gulp-notify');
@@ -36,7 +37,9 @@ var bundleCssDest = (argv.bundleCssDest ? argv.bundleCssDest : 'dist/stylesheets
 
 gulp.task('default', ['watch']);
 
-gulp.task('watch', ['js-jsx:watch', 'css:watch']);
+gulp.task('watch', ['js-jsx:watch', 'css:watch'], function() {
+  livereload.listen();
+});
 
 gulp.task('build', ['js-jsx:build', 'css:build']);
 
@@ -64,7 +67,7 @@ gulp.task('js:build', function() {
   }
   return (
     b.pipe(gulp.dest(bundleJsDest))
-      .pipe(notify('scripts build done!'))
+      .pipe(livereload({start: true}))
   );
 });
 
