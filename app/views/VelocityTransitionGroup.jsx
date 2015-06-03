@@ -30,7 +30,7 @@ var VelocityTransitionGroupChild = React.createClass({
 
   componentWillEnter: function(done) {
     if (this.props.enterTransition) {
-      var node = this.getDOMNode();
+      var node = React.findDOMNode(this);
       this._addTransition(node, done, 'enterTransition');
     } else {
       done();
@@ -39,7 +39,7 @@ var VelocityTransitionGroupChild = React.createClass({
 
   componentWillLeave: function(done) {
     if (this.props.leaveTransition) {
-      var node = this.getDOMNode();
+      var node = React.findDOMNode(this);
       this._addTransition(node, done, 'leaveTransition');
     } else {
       done();
