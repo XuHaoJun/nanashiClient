@@ -13,7 +13,7 @@ var browserifyInc = require('browserify-incremental');
 var xtend = require('xtend');
 var strictify = require('strictify');
 var react = require('gulp-react');
-var watchify = require('watchify');
+var watch = require('gulp-watch');
 var gStreamify = require('gulp-streamify');
 var minifyCSS = require('gulp-minify-css');
 var stylus = require('gulp-stylus');
@@ -36,13 +36,17 @@ var bundleCssDest = (argv.bundleCssDest ? argv.bundleCssDest : 'dist/stylesheets
 
 gulp.task('default', ['watch']);
 
-gulp.task('watch', ['jsx:watch', 'js:watch', 'css:watch']);
+gulp.task('watch', ['js-jsx:watch', 'css:watch']);
 
-gulp.task('build', ['js:build', 'css:build']);
+gulp.task('build', ['js-jsx:build', 'css:build']);
+
+gulp.task('js-jsx:build', ['jsx:build'], function() {
+  return gulp.start('js:build');
+});
 
 gulp.task('js-jsx:watch', ['jsx:watch', 'js:watch']);
 
-gulp.task('js:build', ['jsx:build'], function() {
+gulp.task('js:build', function() {
   var b;
   if (development) {
     b = browserify('./app/app.js', xtend(browserifyInc.args, {}));
@@ -76,7 +80,11 @@ gulp.task('jsx:build', function() {
 });
 
 gulp.task('jsx:watch', function() {
-  return gulp.watch('app/**/*.jsx', ['jsx:build']);
+  return gulp.src(jsxFiles)
+    .pipe(watch(jsxFiles))
+    .pipe(plumber({errorHandler: handleError('jsx:build')}))
+    .pipe(react())
+    .pipe(gulp.dest('app/'));
 });
 
 gulp.task('css:build', function() {
