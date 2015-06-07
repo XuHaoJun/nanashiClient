@@ -68,6 +68,15 @@ gulp.task('clean', function(cb) {
   );
 });
 
+gulp.task('js:lint', function() {
+  var jshint = require('gulp-jshint');
+  return (
+    gulp.src(jsFiles)
+      .pipe(jshint())
+      .pipe(jshint.reporter('default'))
+  );
+});
+
 gulp.task('js-jsx:build', ['jsx:build'], function() {
   return gulp.start('js:build');
 });
