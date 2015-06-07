@@ -52,7 +52,7 @@ if (argv.livereload) {
   livereload.listen();
 }
 
-gulp.task('default', ['watch']);
+gulp.task('default', ['build']);
 
 gulp.task('watch', ['js-jsx:watch', 'css:watch']);
 
