@@ -41,7 +41,7 @@ var CardInfo = React.createClass({
 
   getInitialState: function() {
     var state = this.getInitialEffortUpdate();
-    state.effortUpdateButtonDisabled = true
+    state.effortUpdateButtonDisabled = true;
     return state;
   },
 
@@ -184,12 +184,12 @@ var Deck = React.createClass({
     return {
       deck: this.sortedDeck(this.props.deck,
                             this.props.cardPartyInfo)
-    }
+    };
   },
 
   componentWillReceiveProps: function(nextProps) {
     this.setState({deck: this.sortedDeck(nextProps.deck,
-                                         nextProps.cardPartyInfo)})
+                                         nextProps.cardPartyInfo)});
   },
 
   sortedDeck: function(deck, cardPartyInfo) {
@@ -268,7 +268,7 @@ var CardPartyPage = module.exports = React.createClass({
     var lastDeletedCardIds = AccountModel.getLastDeletedCardIds();
     if (this.state.selectedCard) {
       var found = lastDeletedCardIds.find(function(cardId) {
-        return cardId == this.state.selectedCard.get('id')
+        return cardId == this.state.selectedCard.get('id');
       }, this);
       if (found) {
         state.selectedCard = null;

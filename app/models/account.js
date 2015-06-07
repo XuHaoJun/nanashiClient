@@ -305,7 +305,7 @@ var AccountModel = module.exports = assign({}, EventEmitter.prototype, {
                 if (cardParty.get('id') == res.body) {
                   foundIndex = index;
                   return true;
-                };
+                }
                 return false;
               });
               if (foundCardParty) {

@@ -3,6 +3,11 @@ var ReactTransitionGroup = require('react/addons').addons.TransitionGroup;
 var Velocity = require('velocity-animate');
 require('velocity-animate/velocity.ui.js');
 
+function _bindComplete(func, node, done, name) {
+  func.bind(this)(node, name);
+  done();
+}
+
 var VelocityTransitionGroupChild = React.createClass({
   _addTransition: function(node, done, name) {
     var i = 0;
@@ -11,10 +16,10 @@ var VelocityTransitionGroupChild = React.createClass({
       if (i == length) {
         if (this.props[name][i][1]) {
           if (this.props[name][i][1].complete) {
-            this.props[name][i][1].complete = function() {
-              this.props[name][i][1].complete().bind(this, node, name);
-              done();
-            }.bind(this);
+            this.props[name][i][1].complete = _bindComplete.bind(this)(
+              this.props[name][i][1].complete,
+              node, done, name
+            );
           } else {
             this.props[name][i][1].complete = done;
           }

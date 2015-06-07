@@ -8,13 +8,13 @@ module.exports = {
   },
 
   logout: function() {
-    if (_socket && _socket.disconected == false) {
+    if (_socket && _socket.disconected === false) {
       _socket.emit('logout');
     }
   },
 
   connect: function(callback) {
-    if (_socket && _socket.disconected == false) {
+    if (_socket && _socket.disconected === false) {
       return false;
     }
     if (_isFirst) {
@@ -57,6 +57,6 @@ module.exports = {
   },
 
   isConnecting: function() {
-    return _socket && _socket.disconected == false;
+    return _socket && _socket.disconected === false;
   }
 };
