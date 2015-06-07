@@ -1,7 +1,25 @@
-var ENV = process.env.ENV;
+var argv = require('yargs').argv;
+
+var ENV = process.env.ENV || process.env.NODE_ENV;
 var production =  ( ENV == 'pro' || ENV == 'production' ? true : false);
 var development = ( ENV == 'dev' || ENV == 'development' || !production  ? true : false);
-var argv = require('yargs').argv;
+
+var jsFiles = 'app/**/*.js';
+var jsxFiles = 'app/**/*.jsx';
+var bundleJsDest = (argv.bundleJsDest ? argv.bundleJsDest : 'dist/javascripts');
+var bundleJsFilename = 'bundle.js';
+
+var cssFiles = {
+  stylus: ['assets/stylesheets/**/*.styl'],
+  sass: ['assets/stylesheets/**/*.scss'],
+  css: ['node_modules/bootstrap/dist/css/bootstrap.min.css',
+        'node_modules/toastr/toastr.min.css']
+};
+var bundleCssDest = (argv.bundleCssDest ? argv.bundleCssDest : 'dist/stylesheets');
+var bundleCssFilename = 'bundle.css';
+
+
+
 var gulp = require('gulp');
 var livereload = require('gulp-livereload');
 var merge = require('merge-stream');
@@ -22,26 +40,33 @@ var sass = require('gulp-sass');
 var prefix = require('gulp-autoprefixer');
 var concat = require('gulp-concat');
 var source = require('vinyl-source-stream');
+var del = require('del');
 
-var jsFiles = 'app/**/*.js';
-var jsxFiles = 'app/**/*.jsx';
-var bundleJsDest = (argv.bundleJsDest ? argv.bundleJsDest : 'dist/javascripts');
 
-var cssFiles = {
-  stylus: ['assets/stylesheets/**/*.styl'],
-  sass: ['assets/stylesheets/**/*.scss'],
-  css: ['node_modules/bootstrap/dist/css/bootstrap.min.css',
-        'node_modules/toastr/toastr.min.css']
-};
-var bundleCssDest = (argv.bundleCssDest ? argv.bundleCssDest : 'dist/stylesheets');
+
+if (argv._ && argv._.indexOf('watch') !== -1) {
+  argv.livereload = argv.livereload === undefined ? true : false;
+}
+
+if (argv.livereload) {
+  livereload.listen();
+}
 
 gulp.task('default', ['watch']);
 
-gulp.task('watch', ['js-jsx:watch', 'css:watch'], function() {
-  livereload.listen();
-});
+gulp.task('watch', ['js-jsx:watch', 'css:watch']);
 
 gulp.task('build', ['js-jsx:build', 'css:build']);
+
+gulp.task('clean', function(cb) {
+  return (
+    del([
+      'dist/javascripts/bundle.js',
+      'dist/stylesheets/bundle.css',
+      '.browserify-cache.json'
+    ], cb)
+  );
+});
 
 gulp.task('js-jsx:build', ['jsx:build'], function() {
   return gulp.start('js:build');
@@ -61,14 +86,15 @@ gulp.task('js:build', function() {
   if (development) {
     browserifyInc(b, {cacheFile: './.browserify-cache.json'});
   }
-  b = b.bundle().pipe(source('bundle.js'));
+  b = b.bundle().pipe(source(bundleJsFilename));
   if (production) {
     b = b.pipe(gStreamify(uglify()));
   }
-  return (
-    b.pipe(gulp.dest(bundleJsDest))
-      .pipe(livereload({start: true}))
-  );
+  b = b.pipe(gulp.dest(bundleJsDest));
+  if (argv.livereload) {
+    b = b.pipe(livereload({start: true}));
+  }
+  return b;
 });
 
 gulp.task('js:watch', function() {
@@ -99,7 +125,7 @@ gulp.task('css:build', function() {
   return merge(_stylus, _css, _sass)
     .pipe(prefix("last 3 version"))
     .pipe(minifyCSS({keepSpecialComments: 0}))
-    .pipe(concat('bundle.css', {newLine: ''}))
+    .pipe(concat(bundleCssFilename, {newLine: ''}))
     .pipe(gulp.dest(bundleCssDest));
 });
 
