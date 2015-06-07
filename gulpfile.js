@@ -146,6 +146,19 @@ gulp.task('css:watch', function() {
   return gulp.watch(files, ['css:build']);
 });
 
+gulp.task('manifest', function(){
+  var manifest = require('gulp-manifest');
+  gulp.src(['dist/**/*'])
+    .pipe(manifest({
+      filename: 'offline.manifest',
+      hash: true,
+      preferOnline: false,
+      network: ['http://*', 'https://*', '*'],
+      exclude: ['offline.manifest', 'index.mustache']
+    }))
+    .pipe(gulp.dest('dist'));
+});
+
 function handleError(task) {
   return function(err) {
     gutil.log(gutil.colors.red(err));
